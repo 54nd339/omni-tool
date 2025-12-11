@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import dynamic from 'next/dynamic';
 import '@excalidraw/excalidraw/index.css';
 import { PenTool, Loader2, AlertCircle } from 'lucide-react';
+import { Button } from '@/app/components/shared';
 
 const Excalidraw = dynamic(
   async () => {
@@ -39,19 +40,20 @@ export default function WhiteboardPage() {
           <h2 className="text-xl font-bold flex items-center gap-2">
             <PenTool className="w-5 h-5 text-blue-500" /> Whiteboard
           </h2>
-          <button
+          <Button
             onClick={() => setFallback((v) => !v)}
-            className="text-xs px-3 py-1 rounded bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-white"
+            variant="outline"
+            className="text-xs"
           >
             {fallback ? 'Try Excalidraw' : 'Use fallback'}
-          </button>
+          </Button>
         </div>
-
-        <div className="rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden bg-white">
+        
+        <div className="h-[600px] w-full rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden bg-white">
           {fallback ? (
             <textarea
-              className="w-full h-96 p-4 bg-slate-50 dark:bg-slate-900 text-sm text-slate-600 dark:text-slate-200"
-              placeholder="Fallback sketchpad (text). Excalidraw failed to load."
+              className="w-full h-full p-4 bg-slate-50 dark:bg-slate-900 text-sm text-slate-600 dark:text-slate-200" 
+              placeholder="Fallback sketchpad..."
             />
           ) : (
             <Excalidraw />

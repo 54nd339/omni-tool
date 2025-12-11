@@ -1,22 +1,18 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Link2, Copy, Check } from 'lucide-react';
-import { ToolLayout } from '@/app/components/shared/ToolLayout';
-import { TwoColumnLayout } from '@/app/components/shared/TwoColumnLayout';
-import { ControlPanel } from '@/app/components/shared/ControlPanel';
-import { TextAreaInput } from '@/app/components/shared/TextAreaInput';
-import { Button } from '@/app/components/shared/Button';
-import { encodeText, decodeText, copyToClipboard } from '@/app/lib/utils/text';
-import { UI_CONSTANTS } from '@/app/lib/constants';
+import { useState } from 'react';
+import { ToolLayout, TwoColumnLayout, ControlPanel, TextAreaInput, Button, CopyButton, Select } from '@/app/components/shared';
+import { encodeText, decodeText, formatErrorMessage } from '@/app/lib/utils';
+import { useClipboard } from '@/app/lib/hooks';
+import { CRYPTO_DEFAULTS } from '@/app/lib/constants';
 
 type EncodingType = 'base64' | 'url' | 'html' | 'uri';
 
 export default function UrlPage() {
   const [input, setInput] = useState('');
   const [output, setOutput] = useState('');
-  const [encodingType, setEncodingType] = useState<EncodingType>('base64');
-  const [copied, setCopied] = useState(false);
+  const [encodingType, setEncodingType] = useState<EncodingType>(CRYPTO_DEFAULTS.URL_ENCODING_TYPE);
+  const clipboard = useClipboard();
 
   const handleEncode = () => {
     if (!input) return;
@@ -24,7 +20,7 @@ export default function UrlPage() {
       const result = encodeText[encodingType](input);
       setOutput(result);
     } catch (error) {
-      setOutput(`Error: ${(error as Error).message}`);
+      setOutput(formatErrorMessage(error));
     }
   };
 
@@ -34,22 +30,12 @@ export default function UrlPage() {
       const result = decodeText[encodingType](input);
       setOutput(result);
     } catch (error) {
-      setOutput(`Error: ${(error as Error).message}`);
+      setOutput(formatErrorMessage(error));
     }
   };
 
-  const handleCopy = async () => {
-    await copyToClipboard(output);
-    setCopied(true);
-    setTimeout(() => setCopied(false), UI_CONSTANTS.ANIMATION.COPY_FEEDBACK_DURATION);
-  };
-
   return (
-    <ToolLayout
-      icon={Link2}
-      title="URL Encode/Decode"
-      description="Encode/decode text to/from Base64, URL, HTML, and URI formats"
-    >
+    <ToolLayout path="/crypto/url">
       <TwoColumnLayout
         left={
           <div className="space-y-4">
@@ -64,16 +50,15 @@ export default function UrlPage() {
             </ControlPanel>
 
             <ControlPanel title="Encoding Type">
-              <select
+              <Select
                 value={encodingType}
                 onChange={(e) => setEncodingType(e.target.value as EncodingType)}
-                className="w-full px-3 py-2 border rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border-slate-300 dark:border-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               >
                 <option value="base64">Base64</option>
                 <option value="url">URL Encode</option>
                 <option value="html">HTML Entities</option>
                 <option value="uri">URI Encode</option>
-              </select>
+              </Select>
             </ControlPanel>
 
             <div className="flex gap-2">
@@ -93,19 +78,12 @@ export default function UrlPage() {
             </ControlPanel>
 
             {output && (
-              <Button variant="outline" onClick={handleCopy} className="w-full flex items-center justify-center gap-2">
-                {copied ? (
-                  <>
-                    <Check className="w-4 h-4" />
-                    Copied!
-                  </>
-                ) : (
-                  <>
-                    <Copy className="w-4 h-4" />
-                    Copy Result
-                  </>
-                )}
-              </Button>
+              <CopyButton
+                value={output}
+                onCopy={() => clipboard.copy(output)}
+                copied={clipboard.copied}
+                disabled={!output}
+              />
             )}
           </div>
         }

@@ -2,7 +2,6 @@
  * Utility functions for text encoding/decoding operations
  */
 
-// URL encoding utilities
 export const encodeText = {
   base64: (text: string): string => {
     return btoa(unescape(encodeURIComponent(text)));
@@ -40,7 +39,6 @@ export const decodeText = {
   },
 };
 
-// Caesar cipher utilities
 export const caesarCipher = {
   encode: (text: string, shift: number = 3): string => {
     return text
@@ -70,13 +68,3 @@ export const caesarCipher = {
   },
 };
 
-// Copy to clipboard utility
-export const copyToClipboard = async (text: string): Promise<void> => {
-  await navigator.clipboard.writeText(text);
-};
-
-export const copyImageToClipboard = async (dataUrl: string): Promise<void> => {
-  const response = await fetch(dataUrl);
-  const blob = await response.blob();
-  await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
-};

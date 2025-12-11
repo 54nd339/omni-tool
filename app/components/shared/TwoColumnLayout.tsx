@@ -1,19 +1,10 @@
 'use client';
 
-import React from 'react';
-import { cn } from '@/app/utils/cn';
+import { type FC } from 'react';
+import { cn } from '@/app/lib/utils';
+import { TwoColumnLayoutProps } from '@/app/lib/types';
 
-interface TwoColumnLayoutProps {
-  left: React.ReactNode;
-  right: React.ReactNode;
-  className?: string;
-  reverseOnMobile?: boolean;
-}
-
-/**
- * DRY two-column layout for tools with input/output or preview
- */
-export const TwoColumnLayout: React.FC<TwoColumnLayoutProps> = ({
+export const TwoColumnLayout: FC<TwoColumnLayoutProps> = ({
   left,
   right,
   className,

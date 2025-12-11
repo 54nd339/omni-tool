@@ -1,5 +1,5 @@
 /**
- * Application-wide constants and configuration
+ * Navigation and routing constants
  */
 
 import {
@@ -10,10 +10,10 @@ import {
   Film,
   PenTool,
   AlertCircle,
-  Archive,
   Maximize2,
   Sparkles,
   Repeat2,
+  Square,
   Hash,
   Link2,
   KeyRound,
@@ -41,9 +41,11 @@ export const NAV_ITEMS: NavItem[] = [
     icon: ImageIcon,
     href: '/image',
     children: [
-      { label: 'Background Removal', href: '/image/background-removal' },
+      { label: 'Background Remover', href: '/image/background-remover' },
       { label: 'Image Editor', href: '/image/edit' },
+      { label: 'Aspect Ratio Pad', href: '/image/aspect-ratio' },
       { label: 'Icon Generator', href: '/image/icons' },
+      { label: 'Create PDF', href: '/image/create-pdf' },
     ],
   },
   {
@@ -75,9 +77,8 @@ export const NAV_ITEMS: NavItem[] = [
     href: '/docs',
     children: [
       { label: 'Merge PDFs', href: '/docs/merge' },
-      { label: 'Split / Reorder', href: '/docs/split' },
-      { label: 'Compress / Repair', href: '/docs/repair' },
-      { label: 'Format Converter', href: '/docs/convert' },
+      { label: 'Split PDFs', href: '/docs/split' },
+      { label: 'PDF to Images', href: '/docs/convert' },
     ],
   },
   {
@@ -164,9 +165,11 @@ export type CategoryTool = {
 };
 
 export const IMAGE_TOOLS: CategoryTool[] = [
-  { label: 'Background Removal', href: '/image/background-removal', description: 'Remove backgrounds from images', icon: AlertCircle },
+  { label: 'Background Remover', href: '/image/background-remover', description: 'Remove backgrounds from images', icon: AlertCircle },
   { label: 'Image Editor', href: '/image/edit', description: 'Resize, compress, and convert images', icon: Maximize2 },
+  { label: 'Aspect Ratio Pad', href: '/image/aspect-ratio', description: 'Add padding to match common ratios', icon: Square },
   { label: 'Icon Generator', href: '/image/icons', description: 'Generate icons in multiple sizes', icon: Sparkles },
+  { label: 'Create PDF', href: '/image/create-pdf', description: 'Convert images to PDF documents', icon: Repeat2 },
 ];
 
 export const CRYPTO_TOOLS: CategoryTool[] = [
@@ -186,8 +189,7 @@ export const DEV_TOOLS: CategoryTool[] = [
 
 export const DOCS_TOOLS: CategoryTool[] = [
   { label: 'Merge PDFs', href: '/docs/merge', description: 'Combine multiple PDF files', icon: Layers },
-  { label: 'Split / Reorder', href: '/docs/split', description: 'Split and reorder PDF pages', icon: Scissors },
-  { label: 'Compress / Repair', href: '/docs/repair', description: 'Compress and repair PDF documents', icon: Wrench },
+  { label: 'Split PDFs', href: '/docs/split', description: 'Split and reorder PDF pages', icon: Scissors },
   { label: 'Format Converter', href: '/docs/convert', description: 'Convert documents between formats', icon: Repeat2 },
 ];
 
@@ -198,35 +200,30 @@ export const MEDIA_TOOLS: CategoryTool[] = [
   { label: 'Compress / Repair', href: '/media/repair', description: 'Compress and repair media files', icon: Wrench },
 ];
 
-// UI Constants
-export const UI_CONSTANTS = {
-  ANIMATION: {
-    COPY_FEEDBACK_DURATION: 2000,
-    FADE_IN_DURATION: 500,
-  },
-  TEXTAREA: {
-    DEFAULT_ROWS: 6,
-    LARGE_ROWS: 8,
-    SMALL_ROWS: 4,
-  },
-  IMAGE: {
-    DEFAULT_QUALITY: 0.7,
-    DEFAULT_WIDTH: 800,
-    DEFAULT_HEIGHT: 600,
-    DEFAULT_SCALE: 100,
-    MIN_QUALITY: 0.1,
-    MAX_QUALITY: 1.0,
-    MIN_SCALE: 10,
-    MAX_SCALE: 200,
-  },
-  HASH: {
-    ALGORITHMS: ['SHA-1', 'SHA-256', 'SHA-512', 'MD5'] as const,
-  },
-  CRYPTO: {
-    DEFAULT_SECRET: 'omnitool',
-    CAESAR_SHIFT: 3,
-  },
-} as const;
+// Route title mapping
+export const ROUTE_TITLES: Record<string, string> = {
+  image: 'Image Tools',
+  'background-remover': 'Background Remover',
+  resize: 'Resize & Compress',
+  icons: 'Icon Generator',
+  convert: 'PDF to Images',
+  'create-pdf': 'Create PDF from Images',
+  crypto: 'Cryptography',
+  cipher: 'Cipher Tools',
+  url: 'URL & Base64',
+  jwt: 'JWT Tools',
+  hash: 'Hash Generator',
+  dev: 'Developer Utilities',
+  json: 'JSON Validator',
+  yaml: 'YAML Validator',
+  xml: 'XML Validator',
+  diff: 'Diff Checker',
+  time: 'Timestamp & Cron',
+  docs: 'PDF + Docs',
+  merge: 'Merge PDFs',
+  split: 'Split PDFs',
+  repair: 'Compress / Repair Media',
+  media: 'Audio / Video Lab',
+  whiteboard: 'Whiteboard',
+};
 
-// Type exports
-export type HashAlgorithm = (typeof UI_CONSTANTS.HASH.ALGORITHMS)[number];

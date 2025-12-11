@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import PageClient from './page.client';
+import EditImageClient from './page.client';
 
 export const metadata: Metadata = {
   title: 'Image Editor - Resize, Compress & Convert',
@@ -7,5 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function Page() {
-  return <PageClient />;
+  return <EditImageClient />;
 }

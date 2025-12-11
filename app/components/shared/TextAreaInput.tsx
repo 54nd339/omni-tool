@@ -1,22 +1,10 @@
 'use client';
 
-import React from 'react';
-import { cn } from '@/app/utils/cn';
+import { type FC } from 'react';
+import { cn } from '@/app/lib/utils';
+import { TextAreaInputProps } from '@/app/lib/types';
 
-interface TextAreaInputProps {
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-  placeholder?: string;
-  rows?: number;
-  readOnly?: boolean;
-  error?: string;
-}
-
-/**
- * DRY textarea component with consistent styling
- */
-export const TextAreaInput: React.FC<TextAreaInputProps> = ({
+export const TextAreaInput: FC<TextAreaInputProps> = ({
   label,
   value,
   onChange,

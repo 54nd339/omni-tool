@@ -1,22 +1,12 @@
 'use client';
 
-import React from 'react';
+import { type FC } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Upload } from 'lucide-react';
-import { cn } from '@/app/utils/cn';
+import { cn } from '@/app/lib/utils';
+import { FileUploadProps } from '@/app/lib/types';
 
-interface FileUploadProps {
-  label: string;
-  accept?: string;
-  multiple?: boolean;
-  onFilesSelected: (files: File[]) => void;
-  className?: string;
-}
-
-/**
- * DRY file upload component with drag-and-drop using react-dropzone
- */
-export const FileUpload: React.FC<FileUploadProps> = ({
+export const FileUpload: FC<FileUploadProps> = ({
   label,
   accept = '*',
   multiple = false,

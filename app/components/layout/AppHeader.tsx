@@ -1,18 +1,11 @@
 'use client';
 
-import React from 'react';
+import { type FC } from 'react';
 import { Menu, Moon, Sun, Wifi, WifiOff } from 'lucide-react';
-import { AppTheme } from '@/app/store/appStore';
+import { AppHeaderProps } from '@/app/lib/types';
+import { Button } from '@/app/components/shared';
 
-interface AppHeaderProps {
-  title: string;
-  isOnline: boolean;
-  theme: AppTheme;
-  onToggleTheme: () => void;
-  onToggleSidebar: () => void;
-}
-
-export const AppHeader: React.FC<AppHeaderProps> = ({
+export const AppHeader: FC<AppHeaderProps> = ({
   title,
   isOnline,
   theme,
@@ -21,9 +14,9 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
 }) => (
   <header className="h-16 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-4 lg:px-8 z-10 sticky top-0">
     <div className="flex items-center gap-4">
-      <button onClick={onToggleSidebar} className="lg:hidden p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800">
+      <Button onClick={onToggleSidebar} variant="ghost" className="p-2" title="Toggle Sidebar">
         <Menu className="w-6 h-6" />
-      </button>
+      </Button>
       <h2 className="font-semibold text-lg hidden sm:block capitalize">{title}</h2>
     </div>
 
@@ -39,13 +32,14 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
         <span className="hidden sm:inline">{isOnline ? 'Online' : 'Offline Mode'}</span>
       </div>
 
-      <button
+      <Button
         onClick={onToggleTheme}
-        className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+        variant="ghost"
+        className="p-2"
         title="Toggle Theme"
       >
         {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-      </button>
+      </Button>
     </div>
   </header>
 );

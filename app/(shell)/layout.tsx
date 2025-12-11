@@ -1,35 +1,10 @@
 'use client';
 
-import React, { useEffect, useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { usePathname } from 'next/navigation';
-import { AppHeader } from '@/app/components/layout/AppHeader';
-import { Sidebar } from '@/app/components/layout/Sidebar';
+import { AppHeader, Sidebar } from '@/app/components/layout';
 import { useAppStore } from '@/app/store/appStore';
-
-const titleMap: Record<string, string> = {
-  image: 'Image Tools',
-  'background-removal': 'Background Removal',
-  resize: 'Resize & Compress',
-  icons: 'Icon Generator',
-  convert: 'Format Conversion',
-  crypto: 'Cryptography',
-  cipher: 'Cipher Tools',
-  url: 'URL & Base64',
-  jwt: 'JWT Tools',
-  hash: 'Hash Generator',
-  dev: 'Developer Utilities',
-  json: 'JSON Validator',
-  yaml: 'YAML Validator',
-  xml: 'XML Validator',
-  diff: 'Diff Checker',
-  time: 'Timestamp & Cron',
-  docs: 'PDF + Docs',
-  merge: 'Merge PDFs',
-  split: 'Split / Reorder',
-  repair: 'Compress / Repair',
-  media: 'Audio / Video Lab',
-  whiteboard: 'Whiteboard',
-};
+import { ROUTE_TITLES } from '@/app/lib/constants';
 
 export default function ShellLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -53,7 +28,7 @@ export default function ShellLayout({ children }: { children: React.ReactNode })
   const title = useMemo(() => {
     const parts = pathname.split('/').filter(Boolean);
     const last = parts[parts.length - 1] || 'dashboard';
-    return titleMap[last] ?? last;
+    return ROUTE_TITLES[last] ?? last;
   }, [pathname]);
 
   return (

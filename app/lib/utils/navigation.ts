@@ -1,12 +1,5 @@
-/**
- * Navigation and routing utilities
- */
+import { NAV_ITEMS } from '@/app/lib/constants';
 
-import { NAV_ITEMS, type NavItem } from '@/app/lib/constants';
-
-/**
- * Build a map of active routes based on the current pathname
- */
 export const buildActiveRouteMap = (pathname: string): Set<string> => {
   const map = new Set<string>();
   
@@ -30,9 +23,3 @@ export const buildActiveRouteMap = (pathname: string): Set<string> => {
   return map;
 };
 
-/**
- * Check if a route is active
- */
-export const isRouteActive = (pathname: string, href: string): boolean => {
-  return pathname.startsWith(href);
-};

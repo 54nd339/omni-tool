@@ -1,43 +1,25 @@
 'use client';
 
-import React, { useState } from 'react';
-import { FileJson, Copy, Check, AlertCircle } from 'lucide-react';
-import * as yaml from 'js-yaml';
-import { ToolLayout } from '@/app/components/shared/ToolLayout';
-import { TwoColumnLayout } from '@/app/components/shared/TwoColumnLayout';
-import { ControlPanel } from '@/app/components/shared/ControlPanel';
-import { TextAreaInput } from '@/app/components/shared/TextAreaInput';
-import { Button } from '@/app/components/shared/Button';
+import { useState } from 'react';
+import { ToolLayout, TwoColumnLayout, ControlPanel, TextAreaInput, Button, CopyButton, ErrorAlert } from '@/app/components/shared';
+import { useClipboard } from '@/app/lib/hooks';
+import { yamlToJson } from '@/app/lib/tools';
+import { DEV_DEFAULTS } from '@/app/lib/constants';
 
 export default function YamlPage() {
-  const [input, setInput] = useState('name: OmniTool\nversion: 1.0\nauthor: Team');
+  const [input, setInput] = useState<string>(DEV_DEFAULTS.YAML_INPUT);
   const [output, setOutput] = useState('');
   const [error, setError] = useState('');
-  const [copied, setCopied] = useState(false);
+  const clipboard = useClipboard();
 
   const handleValidate = () => {
-    try {
-      const parsed = yaml.load(input);
-      setOutput(JSON.stringify(parsed, null, 2));
-      setError('');
-    } catch (e) {
-      setError((e as Error).message);
-      setOutput('');
-    }
-  };
-
-  const handleCopy = () => {
-    navigator.clipboard.writeText(output);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    const { result, error: yamlError } = yamlToJson(input);
+    setOutput(result || '');
+    setError(yamlError || '');
   };
 
   return (
-    <ToolLayout
-      icon={FileJson}
-      title="YAML Validator"
-      description="Validate YAML syntax and convert to JSON"
-    >
+    <ToolLayout path="/dev/yaml">
       <TwoColumnLayout
         left={
           <div className="space-y-4">
@@ -52,14 +34,7 @@ export default function YamlPage() {
         }
         right={
           <div className="space-y-4">
-            {error && (
-              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
-                <div className="flex items-start gap-2">
-                  <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
-                  <div className="text-sm text-red-700 dark:text-red-200">{error}</div>
-                </div>
-              </div>
-            )}
+            <ErrorAlert error={error} />
 
             {output && (
               <>
@@ -67,19 +42,12 @@ export default function YamlPage() {
                   <TextAreaInput label="Result" value={output} onChange={() => {}} readOnly rows={8} />
                 </ControlPanel>
 
-                <Button variant="outline" onClick={handleCopy} className="w-full flex items-center justify-center gap-2">
-                  {copied ? (
-                    <>
-                      <Check className="w-4 h-4" />
-                      Copied!
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="w-4 h-4" />
-                      Copy Result
-                    </>
-                  )}
-                </Button>
+                <CopyButton
+                  value={output}
+                  onCopy={() => clipboard.copy(output)}
+                  copied={clipboard.copied}
+                  disabled={!output}
+                />
               </>
             )}
           </div>

@@ -1,86 +1,44 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Code, Copy, Check, AlertCircle, CheckCircle } from 'lucide-react';
-import Ajv from 'ajv';
-import { ToolLayout } from '@/app/components/shared/ToolLayout';
-import { TwoColumnLayout } from '@/app/components/shared/TwoColumnLayout';
-import { ControlPanel } from '@/app/components/shared/ControlPanel';
-import { TextAreaInput } from '@/app/components/shared/TextAreaInput';
-import { Button } from '@/app/components/shared/Button';
-
-const ajv = new Ajv({ allErrors: true });
+import { useState } from 'react';
+import { AlertCircle, CheckCircle } from 'lucide-react';
+import { ToolLayout, TwoColumnLayout, ControlPanel, TextAreaInput, Button, CopyButton, ErrorAlert } from '@/app/components/shared';
+import { useClipboard } from '@/app/lib/hooks';
+import { formatJson, minifyJson, validateJsonAgainstSchema } from '@/app/lib/tools';
+import { JsonValidationResult } from '@/app/lib/types';
+import { DEV_DEFAULTS } from '@/app/lib/constants';
 
 export default function JsonPage() {
-  const [input, setInput] = useState('{"name":"OmniTool","version":"1.0"}');
-  const [schema, setSchema] = useState('{"type":"object","properties":{"name":{"type":"string"},"version":{"type":"string"}}}');
+  const [input, setInput] = useState<string>(DEV_DEFAULTS.JSON_INPUT);
+  const [schema, setSchema] = useState<string>(DEV_DEFAULTS.JSON_SCHEMA);
   const [output, setOutput] = useState('');
   const [error, setError] = useState('');
-  const [validationResult, setValidationResult] = useState<{ valid: boolean; errors?: string[] } | null>(null);
-  const [copied, setCopied] = useState(false);
+  const [validationResult, setValidationResult] = useState<JsonValidationResult | null>(null);
+  const clipboard = useClipboard();
 
   const handleValidate = () => {
-    try {
-      const parsed = JSON.parse(input);
-      const formatted = JSON.stringify(parsed, null, 2);
-      setOutput(formatted);
-      setError('');
-      setValidationResult(null);
-    } catch (e) {
-      setError((e as Error).message);
-      setOutput('');
-      setValidationResult(null);
-    }
+    const { result, error: validationError } = formatJson(input);
+    setOutput(result || '');
+    setError(validationError || '');
+    setValidationResult(null);
   };
 
   const handleValidateWithSchema = () => {
-    try {
-      const parsed = JSON.parse(input);
-      const schemaObj = JSON.parse(schema);
-      const validate = ajv.compile(schemaObj);
-      const valid = validate(parsed);
-      
-      if (valid) {
-        setValidationResult({ valid: true });
-        setOutput(JSON.stringify(parsed, null, 2));
-        setError('');
-      } else {
-        setValidationResult({
-          valid: false,
-          errors: validate.errors?.map((err) => `${err.instancePath} ${err.message}`) || [],
-        });
-        setOutput('');
-        setError('');
-      }
-    } catch (e) {
-      setError((e as Error).message);
-      setValidationResult(null);
-      setOutput('');
-    }
+    const { output: validatedOutput, validation, error: validationError } = validateJsonAgainstSchema(input, schema);
+    setValidationResult(validation ?? null);
+    setOutput(validatedOutput || '');
+    setError(validationError || '');
   };
 
   const handleMinify = () => {
-    try {
-      const parsed = JSON.parse(input);
-      const minified = JSON.stringify(parsed);
-      setOutput(minified);
-      setError('');
-      setValidationResult(null);
-    } catch (e) {
-      setError((e as Error).message);
-      setOutput('');
-      setValidationResult(null);
-    }
-  };
-
-  const handleCopy = () => {
-    navigator.clipboard.writeText(output);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    const { result, error: minifyError } = minifyJson(input);
+    setOutput(result || '');
+    setError(minifyError || '');
+    setValidationResult(null);
   };
 
   return (
-    <ToolLayout icon={Code} title="JSON Validator" description="Validate, format, and validate against JSON Schema">
+    <ToolLayout path="/dev/json">
       <TwoColumnLayout
         left={
           <div className="space-y-4">
@@ -119,14 +77,7 @@ export default function JsonPage() {
         }
         right={
           <div className="space-y-4">
-            {error && (
-              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
-                <div className="flex items-start gap-2">
-                  <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
-                  <div className="text-sm text-red-700 dark:text-red-200">{error}</div>
-                </div>
-              </div>
-            )}
+            <ErrorAlert error={error} />
 
             {validationResult && (
               <div
@@ -166,19 +117,12 @@ export default function JsonPage() {
                   <TextAreaInput label="Result" value={output} onChange={() => {}} readOnly rows={10} />
                 </ControlPanel>
 
-                <Button variant="outline" onClick={handleCopy} className="w-full flex items-center justify-center gap-2">
-                  {copied ? (
-                    <>
-                      <Check className="w-4 h-4" />
-                      Copied!
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="w-4 h-4" />
-                      Copy Result
-                    </>
-                  )}
-                </Button>
+                <CopyButton
+                  value={output}
+                  onCopy={() => clipboard.copy(output)}
+                  copied={clipboard.copied}
+                  disabled={!output}
+                />
               </>
             )}
           </div>

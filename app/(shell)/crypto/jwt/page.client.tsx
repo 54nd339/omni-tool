@@ -1,70 +1,45 @@
 'use client';
 
-import React, { useState } from 'react';
-import { KeyRound, Copy, Check } from 'lucide-react';
-import * as jose from 'jose';
-import { ToolLayout } from '@/app/components/shared/ToolLayout';
-import { TwoColumnLayout } from '@/app/components/shared/TwoColumnLayout';
-import { ControlPanel } from '@/app/components/shared/ControlPanel';
-import { TextAreaInput } from '@/app/components/shared/TextAreaInput';
-import { Button } from '@/app/components/shared/Button';
-import { copyToClipboard } from '@/app/lib/utils/text';
-import { UI_CONSTANTS } from '@/app/lib/constants';
+import { useState } from 'react';
+import { ToolLayout, TwoColumnLayout, ControlPanel, TextAreaInput, Button, CopyButton, Input } from '@/app/components/shared';
+import { useAsyncOperation, useClipboard } from '@/app/lib/hooks';
+import { decodeJwt, encodeJwt } from '@/app/lib/tools';
+import { CRYPTO_DEFAULTS } from '@/app/lib/constants';
 
 export default function JwtPage() {
-  const [payload, setPayload] = useState('{"sub":"123","name":"OmniTool","iat":1234567890}');
-  const [secret, setSecret] = useState('your-secret-key');
+  const [payload, setPayload] = useState<string>(CRYPTO_DEFAULTS.JWT_PAYLOAD);
+  const [secret, setSecret] = useState<string>(CRYPTO_DEFAULTS.JWT_SECRET);
   const [output, setOutput] = useState('');
-  const [copied, setCopied] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const { loading, execute } = useAsyncOperation();
+  const clipboard = useClipboard();
 
   const handleEncode = async () => {
-    setLoading(true);
-    try {
-      const payloadObj = JSON.parse(payload);
-      const secretKey = new TextEncoder().encode(secret);
-      const token = await new jose.SignJWT(payloadObj)
-        .setProtectedHeader({ alg: 'HS256' })
-        .sign(secretKey);
+    await execute(async () => {
+      const token = await encodeJwt(payload, secret);
       setOutput(token);
-    } catch (error) {
-      setOutput(`Error: ${(error as Error).message}`);
-    } finally {
-      setLoading(false);
-    }
+      return token;
+    });
   };
 
   const handleDecode = async () => {
-    setLoading(true);
-    try {
-      const secretKey = new TextEncoder().encode(secret);
-      const { payload: decoded } = await jose.jwtVerify(output, secretKey);
+    await execute(async () => {
+      const decoded = await decodeJwt(output, secret);
       setPayload(JSON.stringify(decoded, null, 2));
-    } catch (error) {
-      setOutput(`Error: ${(error as Error).message}`);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleCopy = async () => {
-    await copyToClipboard(output);
-    setCopied(true);
-    setTimeout(() => setCopied(false), UI_CONSTANTS.ANIMATION.COPY_FEEDBACK_DURATION);
+      return decoded;
+    });
   };
 
   return (
-    <ToolLayout icon={KeyRound} title="JWT Encode/Decode" description="Create and verify JWT tokens with HMAC signature">
+    <ToolLayout path="/crypto/jwt">
       <TwoColumnLayout
         left={
           <div className="space-y-4">
             <ControlPanel title="Secret Key">
-              <input
+              <Input
                 type="password"
                 value={secret}
                 onChange={(e) => setSecret(e.target.value)}
                 placeholder="Enter secret key"
-                className="w-full px-3 py-2 border rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border-slate-300 dark:border-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
             </ControlPanel>
 
@@ -96,19 +71,13 @@ export default function JwtPage() {
                 Decode & Verify JWT
               </Button>
               {output && (
-                <Button variant="outline" onClick={handleCopy} className="w-full flex items-center justify-center gap-2">
-                  {copied ? (
-                    <>
-                      <Check className="w-4 h-4" />
-                      Copied!
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="w-4 h-4" />
-                      Copy Token
-                    </>
-                  )}
-                </Button>
+                <CopyButton
+                  value={output}
+                  onCopy={() => clipboard.copy(output)}
+                  copied={clipboard.copied}
+                  disabled={!output}
+                  label="Copy Token"
+                />
               )}
             </div>
           </div>

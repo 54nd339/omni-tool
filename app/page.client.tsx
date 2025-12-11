@@ -1,6 +1,5 @@
 'use client';
 
-import React from 'react';
 import { useRouter } from 'next/navigation';
 import { TOOL_CARDS } from '@/app/lib/constants';
 
