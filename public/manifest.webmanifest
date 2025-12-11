@@ -1,0 +1,19 @@
+{
+  "name": "OmniTool PWA",
+  "short_name": "OmniTool",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "scope": "/",
+  "background_color": "#0f172a",
+  "theme_color": "#4f46e5",
+  "description": "Offline-first client-only utility suite",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "48x48",
+      "type": "image/x-icon"
+    }
+  ]
+}
+

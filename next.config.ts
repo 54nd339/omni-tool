@@ -1,7 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Client-only app shell; all routes are static and offline-ready.
+  output: "export",
+  trailingSlash: true,
 };
 
 export default nextConfig;
