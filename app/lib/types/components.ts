@@ -202,3 +202,35 @@ export interface CopyButtonProps {
   className?: string;
   label?: string;
 }
+
+export interface FileInfoCardProps {
+  fileName: string;
+  fileSize: number;
+  additionalInfo?: React.ReactNode;
+  className?: string;
+}
+
+export interface ProcessingButtonProps {
+  onClick: () => void;
+  disabled?: boolean;
+  processing?: boolean;
+  icon: ReactNode;
+  processingLabel?: string;
+  label: string;
+  className?: string;
+}
+
+export interface ProcessingResultPanelProps {
+  error?: string;
+  processing?: boolean;
+  progress?: number;
+  progressLabel?: string;
+  result?: {
+    title?: string;
+    message?: string;
+    onDownload?: () => void;
+    downloadLabel?: string;
+  } | null;
+  children?: ReactNode;
+  className?: string;
+}

@@ -30,6 +30,28 @@ export const isAudioFormat = (format: string): boolean => {
   return SUPPORTED_FORMATS.audio.includes(format as any);
 };
 
+/**
+ * Determine media preview type from file or format
+ * @param file - File or Blob to check, or null
+ * @param format - Optional format string (e.g., 'mp4', 'mp3')
+ * @returns 'video', 'audio', or null
+ */
+export const getMediaPreviewType = (
+  file: File | Blob | null,
+  format?: string
+): 'video' | 'audio' | null => {
+  if (format) {
+    return isVideoFormat(format) ? 'video' : 'audio';
+  }
+  
+  if (file instanceof File) {
+    if (file.type?.startsWith('video/')) return 'video';
+    if (file.type?.startsWith('audio/')) return 'audio';
+  }
+  
+  return null;
+};
+
 // File operations
 export const generateUniqueId = (): string => {
   return `${Date.now()}-${Math.random()}`;
@@ -47,6 +69,16 @@ export const createMediaFileItem = (file: File, order: number): MediaFileItem =>
 export const getNewFileName = (originalName: string, newExtension: string): string => {
   const baseName = originalName.replace(/\.[^.]+$/, '');
   return `${baseName}.${newExtension}`;
+};
+
+/**
+ * Generate next segment ID based on existing segments
+ * @param segments - Array of existing segments
+ * @returns Next available segment ID as string
+ */
+export const generateNextSegmentId = (segments: SplitSegment[]): string => {
+  const maxId = Math.max(...segments.map((s) => parseInt(s.id) || 0), 0);
+  return (maxId + 1).toString();
 };
 
 // Time conversion

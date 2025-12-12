@@ -61,3 +61,6 @@ docker-compose.yml
 ffmpeg-core.js
 ffmpeg-core.wasm
 pdf.worker.min.mjs
+sw.js
+swe-*.js
+workbox-*.js

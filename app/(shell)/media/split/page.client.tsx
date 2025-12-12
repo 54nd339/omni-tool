@@ -1,19 +1,19 @@
 'use client';
 
-import { useState, useCallback } from 'react';
-import { Scissors, Loader, Trash2 } from 'lucide-react';
-import { ToolLayout, ControlPanel, TwoColumnLayout, Button, Input, FileUpload, ErrorAlert, ProgressBar, SuccessResult, DoubleRangeSlider, MediaPreview } from '@/app/components/shared';
-import { PROCESSING_CONFIG, DEFAULT_SEGMENT_DURATION, DEFAULT_SEGMENT_START } from '@/app/lib/constants';
-import { validateMediaFile, validateSegments, formatFileSize, downloadBlob, processSplit, getMediaDuration, timeToSeconds, secondsToTime } from '@/app/lib/utils';
+import { useState, useCallback, useMemo } from 'react';
+import { Scissors, Trash2 } from 'lucide-react';
+import { ToolLayout, ControlPanel, TwoColumnLayout, Button, Input, FileUpload, DoubleRangeSlider, MediaPreview, FileInfoCard, ProcessingButton, ProcessingResultPanel } from '@/app/components/shared';
+import { validateMediaFile, validateSegments, downloadBlob, processSplit, getMediaDuration, timeToSeconds, secondsToTime, combineErrors, generateNextSegmentId } from '@/app/lib/utils';
 import { useFileUpload, useMediaProcessing, useProcessedSegments, useSegmentRangeHandlers } from '@/app/lib/hooks';
-import { SplitSegment } from '@/app/lib/types';
+import { SplitSegment, SplitMediaResult } from '@/app/lib/types';
+import { DEFAULT_SEGMENT_DURATION, DEFAULT_SEGMENT_START, MEDIA_FILE_ACCEPT, MEDIA_UPLOAD_LABEL, DEFAULT_MEDIA_PROCESSING_CONFIG } from '@/app/lib/constants';
 
 export default function SplitPage() {
   const [duration, setDuration] = useState(0);
   const [segments, setSegments] = useState<SplitSegment[]>([]);
 
   const { file, error: fileError, handleFilesSelected } = useFileUpload<File>({
-    accept: 'audio/*,video/*',
+    accept: MEDIA_FILE_ACCEPT,
     validator: validateMediaFile,
     onFileSelected: async (selectedFile) => {
       // Get actual media duration
@@ -21,20 +21,26 @@ export default function SplitPage() {
         const actualDuration = await getMediaDuration(selectedFile);
         setDuration(actualDuration);
       } catch (error) {
-        console.error('Failed to get media duration:', error);
-        setDuration(300); // Fallback to 5 minutes
+        // Silently fallback to 5 minutes if duration detection fails
+        setDuration(300);
       }
       // Initialize with one segment if empty
-      if (segments.length === 0) {
-        setSegments([
-          { id: '1', startTime: DEFAULT_SEGMENT_START, endTime: DEFAULT_SEGMENT_DURATION, name: 'Segment 1' },
-        ]);
-      }
+      setSegments((prev) => {
+        if (prev.length === 0) {
+          return [
+            { id: '1', startTime: DEFAULT_SEGMENT_START, endTime: DEFAULT_SEGMENT_DURATION, name: 'Segment 1' },
+          ];
+        }
+        return prev;
+      });
       return selectedFile;
     },
   });
 
-  const totalDuration = Math.max(duration, timeToSeconds(DEFAULT_SEGMENT_DURATION));
+  const totalDuration = useMemo(
+    () => Math.max(duration, timeToSeconds(DEFAULT_SEGMENT_DURATION)),
+    [duration]
+  );
 
   const {
     processing: splitting,
@@ -42,9 +48,8 @@ export default function SplitPage() {
     error: processingError,
     result,
     startProcessing,
-  } = useMediaProcessing<{ count: number; totalSize: string; zipBlob: Blob }>({
-    useRealProgress: true,
-    resetDelay: PROCESSING_CONFIG.RESET_DELAY,
+  } = useMediaProcessing<SplitMediaResult>({
+    ...DEFAULT_MEDIA_PROCESSING_CONFIG,
   });
 
   const processedSegments = useProcessedSegments({
@@ -53,7 +58,7 @@ export default function SplitPage() {
   });
 
   const handleAddSegment = useCallback(() => {
-    const newId = (Math.max(...segments.map((s) => parseInt(s.id) || 0), 0) + 1).toString();
+    const newId = generateNextSegmentId(segments);
     const startSeconds = timeToSeconds(DEFAULT_SEGMENT_START);
     const defaultDurationSeconds = timeToSeconds(DEFAULT_SEGMENT_DURATION);
     const availableDuration = Math.max(duration, defaultDurationSeconds);
@@ -71,10 +76,13 @@ export default function SplitPage() {
   }, [segments, duration]);
 
   const handleRemoveSegment = useCallback((id: string) => {
-    if (segments.length > 1) {
-      setSegments((prev) => prev.filter((s) => s.id !== id));
-    }
-  }, [segments.length]);
+    setSegments((prev) => {
+      if (prev.length > 1) {
+        return prev.filter((s) => s.id !== id);
+      }
+      return prev;
+    });
+  }, []);
 
   const handleUpdateSegment = useCallback(
     (id: string, field: keyof SplitSegment, value: string) => {
@@ -89,10 +97,14 @@ export default function SplitPage() {
     totalDuration,
   });
 
+  const validation = useMemo(
+    () => file && segments.length > 0 ? validateSegments(segments, duration) : { valid: true },
+    [file, segments, duration]
+  );
+
   const handleSplit = useCallback(async () => {
     if (!file) return;
 
-    const validation = validateSegments(segments, duration);
     if (!validation.valid) {
       return;
     }
@@ -100,10 +112,10 @@ export default function SplitPage() {
     await startProcessing(async (onProgress) => {
       return await processSplit(file, segments, onProgress);
     });
-  }, [file, segments, duration, startProcessing]);
+  }, [file, segments, startProcessing, validation.valid]);
 
-  const validationError = file && segments.length > 0 ? validateSegments(segments, duration).error : undefined;
-  const error = fileError || processingError || validationError;
+  const validationError = validation.valid ? undefined : validation.error;
+  const error = combineErrors(fileError, processingError, validationError);
 
   const handleDownload = useCallback(() => {
     if (result?.zipBlob) {
@@ -118,20 +130,19 @@ export default function SplitPage() {
           <div className="space-y-4">
             <ControlPanel title="Select File">
               <FileUpload
-                label="Upload Audio/Video"
+                label={MEDIA_UPLOAD_LABEL}
                 onFilesSelected={handleFilesSelected}
-                accept="audio/*,video/*"
+                accept={MEDIA_FILE_ACCEPT}
                 multiple={false}
               />
               {file && (
-                <div className="mt-4 p-3 bg-slate-100 dark:bg-slate-900 rounded-lg">
-                  <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                    {file.name}
-                  </p>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                    {formatFileSize(file.size, 'MB')} • Duration: {Math.floor(duration / 60)}:{String(duration % 60).padStart(2, '0')}
-                  </p>
-                </div>
+                <FileInfoCard
+                  fileName={file.name}
+                  fileSize={file.size}
+                  additionalInfo={
+                    <p>Duration: {secondsToTime(duration)}</p>
+                  }
+                />
               )}
             </ControlPanel>
 
@@ -196,60 +207,53 @@ export default function SplitPage() {
               </Button>
             </ControlPanel>
 
-            <Button
+            <ProcessingButton
               onClick={handleSplit}
-              disabled={!file || splitting}
-              className="w-full flex items-center justify-center"
-            >
-              {splitting ? (
-                <>
-                  <Loader className="w-4 h-4 mr-2 animate-spin" />
-                  Splitting...
-                </>
-              ) : (
-                <>
-                  <Scissors className="w-4 h-4 mr-2" />
-                  Split Media
-                </>
-              )}
-            </Button>
+              disabled={!file}
+              processing={splitting}
+              icon={<Scissors className="w-4 h-4 mr-2" />}
+              label="Split Media"
+              processingLabel="Splitting..."
+            />
           </div>
         }
         right={
-          <div className="space-y-4">
-            {error && <ErrorAlert error={error} />}
-
-            {splitting && <ProgressBar progress={progress} label="Splitting file..." />}
-
+          <ProcessingResultPanel
+            error={error}
+            processing={splitting}
+            progress={progress}
+            progressLabel="Splitting file..."
+            result={
+              result && processedSegments.length > 0
+                ? {
+                    title: 'Split Complete!',
+                    message: `Created ${result.count} segments`,
+                    onDownload: handleDownload,
+                    downloadLabel: 'Download All',
+                  }
+                : null
+            }
+          >
             {result && processedSegments.length > 0 && (
-              <div className="space-y-4">
-                <ControlPanel title={`Processed Segments (${processedSegments.length})`}>
-                  <div className="space-y-4">
-                    {processedSegments.map((segment, index) => (
-                      <div key={index} className="space-y-2">
-                        <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                          {segment.name}
-                        </p>
-                        <MediaPreview
-                          file={segment.blob}
-                          url={segment.url}
-                          type={segment.type}
-                          emptyMessage="Preview not available"
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </ControlPanel>
-
-                <SuccessResult
-                  title="Split Complete!"
-                  message={`Created ${result.count} segments`}
-                  onDownload={handleDownload}
-                  downloadLabel="Download All"
-                />
-              </div>
+              <ControlPanel title={`Processed Segments (${processedSegments.length})`}>
+                <div className="space-y-4">
+                  {processedSegments.map((segment, index) => (
+                    <div key={`${segment.name}-${index}`} className="space-y-2">
+                      <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                        {segment.name}
+                      </p>
+                      <MediaPreview
+                        file={segment.blob}
+                        url={segment.url}
+                        type={segment.type}
+                        emptyMessage="Preview not available"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </ControlPanel>
             )}
-          </div>
+          </ProcessingResultPanel>
         }
       />
     </ToolLayout>

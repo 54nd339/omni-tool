@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import type { ProcessedSegment, UseProcessedSegmentsParams } from '@/app/lib/types';
 import { isVideoFormat } from '@/app/lib/utils';
 
@@ -8,6 +8,13 @@ import { isVideoFormat } from '@/app/lib/utils';
  */
 export function useProcessedSegments({ zipBlob, originalFileName }: UseProcessedSegmentsParams): ProcessedSegment[] {
   const [processedSegments, setProcessedSegments] = useState<ProcessedSegment[]>([]);
+
+  // Memoize segment type calculation
+  const segmentType = useMemo(() => {
+    if (!originalFileName) return null;
+    const inputExt = originalFileName.split('.').pop()?.toLowerCase() || '';
+    return inputExt ? (isVideoFormat(inputExt) ? 'video' : 'audio') : null;
+  }, [originalFileName]);
 
   useEffect(() => {
     if (!zipBlob) {
@@ -20,22 +27,11 @@ export function useProcessedSegments({ zipBlob, originalFileName }: UseProcessed
     }
 
     let isMounted = true;
-    let currentUrls: string[] = [];
-
-    // Cleanup previous segments before extracting new ones
-    setProcessedSegments((prev) => {
-      prev.forEach((segment) => URL.revokeObjectURL(segment.url));
-      return [];
-    });
 
     const extractSegments = async () => {
       try {
         const JSZip = (await import('jszip')).default;
         const zip = await JSZip.loadAsync(zipBlob);
-
-        // Get file extension from original file to determine type
-        const inputExt = originalFileName?.split('.').pop()?.toLowerCase() || '';
-        const segmentType: 'video' | 'audio' | null = inputExt ? (isVideoFormat(inputExt) ? 'video' : 'audio') : null;
 
         // Extract all files from zip
         const filePromises = Object.keys(zip.files).map(async (fileName) => {
@@ -43,7 +39,6 @@ export function useProcessedSegments({ zipBlob, originalFileName }: UseProcessed
 
           const fileData = await zip.files[fileName].async('blob');
           const url = URL.createObjectURL(fileData);
-          currentUrls.push(url);
 
           return {
             name: fileName,
@@ -56,28 +51,33 @@ export function useProcessedSegments({ zipBlob, originalFileName }: UseProcessed
         const extracted = (await Promise.all(filePromises)).filter((f): f is ProcessedSegment => f !== null);
 
         if (isMounted) {
-          setProcessedSegments(extracted);
+          // Cleanup previous segments before setting new ones
+          setProcessedSegments((prev) => {
+            prev.forEach((segment) => URL.revokeObjectURL(segment.url));
+            return extracted;
+          });
         } else {
           // Cleanup if component unmounted during extraction
-          currentUrls.forEach((url) => URL.revokeObjectURL(url));
+          extracted.forEach((segment) => URL.revokeObjectURL(segment.url));
         }
       } catch (error) {
         console.error('Failed to extract segments from zip:', error);
         if (isMounted) {
-          setProcessedSegments([]);
+          setProcessedSegments((prev) => {
+            prev.forEach((segment) => URL.revokeObjectURL(segment.url));
+            return [];
+          });
         }
-        currentUrls.forEach((url) => URL.revokeObjectURL(url));
       }
     };
 
     extractSegments();
 
-    // Cleanup URLs on unmount or when result changes
+    // Cleanup on unmount
     return () => {
       isMounted = false;
-      currentUrls.forEach((url) => URL.revokeObjectURL(url));
     };
-  }, [zipBlob, originalFileName]);
+  }, [zipBlob, segmentType]);
 
   return processedSegments;
 }
