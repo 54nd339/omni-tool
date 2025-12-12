@@ -7,8 +7,7 @@ import { ToolLayout, ControlPanel, FileUpload, Button, CopyButton, ErrorAlert, R
 import { useClipboard, useFileUpload, useObjectUrl, useClearHandler } from '@/app/lib/hooks';
 import { convertAndDownloadImage, downloadDataUrl, formatErrorMessage, validateImageFile } from '@/app/lib/utils';
 import { UI_CONSTANTS, IMAGE_DEFAULTS, BACKGROUND_REMOVER_FORMATS } from '@/app/lib/constants';
-
-type ResultState = 'idle' | 'processing' | 'done' | 'error';
+import type { ResultState } from '@/app/lib/types/image';
 
 export default function BackgroundRemoverPage() {
   const [file, setFile] = useState<File | null>(null);
@@ -30,7 +29,7 @@ export default function BackgroundRemoverPage() {
       setOutputBlob(null);
       setStatus('idle');
       setError(null);
-      
+
       setTimeout(() => handleRemove(selected), UI_CONSTANTS.BACKGROUND_REMOVER.AUTO_START_DELAY);
     },
   });
@@ -70,7 +69,7 @@ export default function BackgroundRemoverPage() {
 
   const handleDownload = async () => {
     if (!outputUrl || !file) return;
-    
+
     if (downloadFormat === 'png') {
       // PNG supports transparency, use direct download
       downloadDataUrl(outputUrl, `bg-removed-${file.name.replace(/\.[^.]+$/, '')}.png`);
@@ -78,7 +77,7 @@ export default function BackgroundRemoverPage() {
       // Convert to JPEG or WebP
       await convertAndDownloadImage(outputUrl, `bg-removed-${file.name}`, downloadFormat);
     }
-    
+
     setShowFormatDialog(false);
   };
 
@@ -139,7 +138,7 @@ export default function BackgroundRemoverPage() {
                 </div>
               )}
             </ControlPanel>
-            
+
             {status === 'done' && outputUrl && (
               <div className="grid grid-cols-2 gap-2">
                 <Button onClick={() => setShowFormatDialog(true)} className="w-full flex items-center justify-center gap-2">
@@ -158,7 +157,7 @@ export default function BackgroundRemoverPage() {
           </div>
         </div>
       )}
-      
+
       {showFormatDialog && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setShowFormatDialog(false)}>
           <div className="bg-white dark:bg-slate-800 p-6 rounded-lg shadow-xl max-w-sm w-full mx-4" onClick={(e) => e.stopPropagation()}>

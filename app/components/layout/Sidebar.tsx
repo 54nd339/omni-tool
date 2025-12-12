@@ -3,7 +3,7 @@
 import { type FC } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ChevronRight, Cpu, Zap } from 'lucide-react';
+import { ChevronRight, Zap } from 'lucide-react';
 import { cn } from '@/app/lib/utils';
 import { NAV_ITEMS } from '@/app/lib/constants';
 import { useActiveRoute } from '@/app/lib/hooks';
@@ -80,18 +80,18 @@ export const Sidebar: FC<SidebarProps> = ({ isOpen, toggle }) => {
           </nav>
 
           <div className="p-4 border-t border-slate-100 dark:border-slate-800">
-            <div className="bg-slate-50 dark:bg-slate-800 rounded-lg p-4">
-              <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 uppercase mb-2">
-                <Cpu className="w-3 h-3" /> System Status
-              </div>
-              <div className="flex items-center justify-between text-sm mb-1">
-                <span className="text-slate-600 dark:text-slate-400">Storage</span>
-                <span className="text-emerald-500">Local Only</span>
-              </div>
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-slate-600 dark:text-slate-400">Network</span>
-                <span className="text-slate-800 dark:text-white font-mono">Offline Ready</span>
-              </div>
+            <div className="bg-slate-50 dark:bg-slate-800 rounded-lg p-4 text-center">
+              <Link
+                href="https://sandeepswain.dev"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-slate-600 dark:text-slate-400 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors block mb-1"
+              >
+                Built with 💖 by Sandeep
+              </Link>
+              <p className="text-xs text-slate-500 dark:text-slate-500">
+                © {new Date().getFullYear()} Sandeep Swain
+              </p>
             </div>
           </div>
         </div>
@@ -99,4 +99,3 @@ export const Sidebar: FC<SidebarProps> = ({ isOpen, toggle }) => {
     </>
   );
 };
-

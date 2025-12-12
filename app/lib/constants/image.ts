@@ -1,5 +1,4 @@
-import { IconPlatform, TargetFormat } from '@/app/lib/types';
-import { RatioOption } from '@/app/lib/types';
+import { IconPlatform, TargetFormat, RatioOption } from '@/app/lib/types';
 
 // Platform sizes for icon generation
 export const PLATFORM_SIZES: Record<IconPlatform, number[]> = {
@@ -73,4 +72,3 @@ export const CANVAS_CONSTRAINTS = {
   maxLongEdge: 4096,
   step: 32,
 };
-

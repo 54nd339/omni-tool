@@ -1,11 +1,6 @@
-import { FC, SelectHTMLAttributes, ReactNode } from 'react';
+import { FC } from 'react';
 import { cn } from '@/app/lib/utils';
-
-interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
-  label?: string;
-  error?: string;
-  children?: ReactNode; // Supports both option and optgroup elements
-}
+import { SelectProps } from '@/app/lib/types';
 
 export const Select: FC<SelectProps> = ({ label, error, className, children, ...props }) => {
   return (
@@ -29,4 +24,3 @@ export const Select: FC<SelectProps> = ({ label, error, className, children, ...
     </div>
   );
 };
-

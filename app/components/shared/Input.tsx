@@ -1,11 +1,6 @@
-import { FC, InputHTMLAttributes } from 'react';
+import { FC } from 'react';
 import { cn } from '@/app/lib/utils';
-
-interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
-  label?: string;
-  error?: string;
-  helperText?: string;
-}
+import { InputProps } from '@/app/lib/types';
 
 export const Input: FC<InputProps> = ({ label, error, helperText, className, ...props }) => {
   return (
@@ -28,4 +23,3 @@ export const Input: FC<InputProps> = ({ label, error, helperText, className, ...
     </div>
   );
 };
-

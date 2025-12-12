@@ -22,4 +22,3 @@ export function useObjectUrl(file: File | Blob | null): string | null {
 
   return url;
 }
-

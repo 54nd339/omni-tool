@@ -1,14 +1,5 @@
 import { PDFDocument } from 'pdf-lib';
-import { LoadedPdf } from '@/app/lib/types';
-
-export interface ImageFile {
-  file: File;
-  name: string;
-  buffer: ArrayBuffer;
-  width: number;
-  height: number;
-  blob: Blob;
-}
+import { LoadedPdf, ImageFile } from '@/app/lib/types';
 
 export const loadPdf = async (file: File): Promise<LoadedPdf> => {
   const buffer = await file.arrayBuffer();
@@ -56,7 +47,7 @@ export const createPdfFromImages = async (images: ImageFile[]): Promise<Blob> =>
     // Embed the image as PNG (can be any supported format)
     const imageData = new Uint8Array(img.buffer);
     const mimeType = img.blob.type || 'image/png';
-    
+
     let embeddedImage;
     if (mimeType === 'image/png') {
       embeddedImage = await doc.embedPng(imageData);

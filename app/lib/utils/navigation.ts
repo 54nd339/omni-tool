@@ -2,7 +2,7 @@ import { NAV_ITEMS } from '@/app/lib/constants';
 
 export const buildActiveRouteMap = (pathname: string): Set<string> => {
   const map = new Set<string>();
-  
+
   NAV_ITEMS.forEach((item) => {
     if (item.children) {
       // For items with children, check if any child matches
@@ -19,7 +19,6 @@ export const buildActiveRouteMap = (pathname: string): Set<string> => {
       }
     }
   });
-  
+
   return map;
 };
-

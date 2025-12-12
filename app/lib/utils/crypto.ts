@@ -37,4 +37,3 @@ export const decodeCipher = (mode: CipherMode, secret: string, input: string): s
     throw new Error(`Decode error: ${formatErrorMessage(error, 'Decoding failed')}`);
   }
 };
-

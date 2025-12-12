@@ -59,13 +59,12 @@ export default function DiffPage() {
               {diff.map((part, index) => (
                 <span
                   key={index}
-                  className={`${mode === 'chars' || mode === 'words' ? 'inline' : 'block'} ${
-                    part.added
-                      ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200'
-                      : part.removed
+                  className={`${mode === 'chars' || mode === 'words' ? 'inline' : 'block'} ${part.added
+                    ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200'
+                    : part.removed
                       ? 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200'
                       : 'text-slate-600 dark:text-slate-400'
-                  }`}
+                    }`}
                 >
                   {part.value}
                 </span>

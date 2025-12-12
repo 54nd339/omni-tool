@@ -1,10 +1,7 @@
-import { Metadata } from 'next';
 import CreatePdfClient from './page.client';
+import { getRouteMetadata } from '@/app/lib/constants';
 
-export const metadata: Metadata = {
-  title: 'Create PDF - Convert Images to PDF Documents',
-  description: 'Convert images to PDF documents. Upload, reorder, and generate PDFs from your images easily.',
-};
+export const metadata = getRouteMetadata('/image/create-pdf');
 
 export default function Page() {
   return <CreatePdfClient />;

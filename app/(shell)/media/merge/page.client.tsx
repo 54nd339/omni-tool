@@ -2,22 +2,22 @@
 
 import { useState, useCallback } from 'react';
 import { Layers, Loader } from 'lucide-react';
-import { ToolLayout, ControlPanel, TwoColumnLayout, Button, FileUpload, DraggableList, ErrorAlert, ProgressBar, SuccessResult, Select } from '@/app/components/shared';
-import { validateFileFormat, createMediaFileItem, calculateCompressedSize, downloadDataUrl, validateMergeFiles, formatFileSize } from '@/app/lib/utils';
-import { useFileUpload, useMediaProcessing } from '@/app/lib/hooks';
+import { ToolLayout, ControlPanel, TwoColumnLayout, Button, FileUpload, DraggableList, ErrorAlert, ProgressBar, SuccessResult, MediaPreview } from '@/app/components/shared';
+import { validateMediaFile, createMediaFileItem, validateMergeFiles, formatFileSize, downloadBlob, processMerge, isVideoFormat } from '@/app/lib/utils';
+import { useFileUpload, useMediaProcessing, useObjectUrl } from '@/app/lib/hooks';
 import { MediaFileItem } from '@/app/lib/types';
-import { SUPPORTED_FORMATS, PROCESSING_CONFIG, FILE_SIZE_CONFIG, MERGE_MIN_FILES } from '@/app/lib/constants';
+import { PROCESSING_CONFIG, MERGE_MIN_FILES } from '@/app/lib/constants';
 
 export default function MergePage() {
   const [files, setFiles] = useState<MediaFileItem[]>([]);
   const [outputFormat, setOutputFormat] = useState('mp4');
 
   const { error: fileError, handleFilesSelected } = useFileUpload({
-    accept: 'video/*',
+    accept: 'audio/*,video/*',
     maxFiles: Infinity,
-    validator: validateFileFormat,
+    validator: validateMediaFile,
     onFilesSelected: async (droppedFiles: File[]) => {
-      const newItems = droppedFiles.map((selectedFile, idx) => 
+      const newItems = droppedFiles.map((selectedFile, idx) =>
         createMediaFileItem(selectedFile, files.length + idx)
       );
       setFiles((prev) => [...prev, ...newItems]);
@@ -31,29 +31,30 @@ export default function MergePage() {
     error: processingError,
     result,
     startProcessing,
-  } = useMediaProcessing<{ fileName: string; size: string }>({
-    progressInterval: PROCESSING_CONFIG.MERGE_PROGRESS_INTERVAL,
-    progressIncrement: PROCESSING_CONFIG.MERGE_PROGRESS_INCREMENT,
-    processingDelay: PROCESSING_CONFIG.PROCESSING_DELAY,
+  } = useMediaProcessing<{ fileName: string; size: string; blob: Blob }>({
+    useRealProgress: true,
     resetDelay: PROCESSING_CONFIG.RESET_DELAY,
   });
+
+  // Preview the processed file if available, otherwise preview the first uploaded file
+  const previewFile = result?.blob ?? files[0]?.file ?? null;
+  const previewUrl = useObjectUrl(previewFile);
+
+  // Determine preview type: if result exists, use outputFormat; otherwise use file type
+  const previewType = result?.blob
+    ? (isVideoFormat(outputFormat) ? 'video' : 'audio')
+    : previewFile instanceof File
+      ? (previewFile.type?.startsWith('video/') ? 'video' : previewFile.type?.startsWith('audio/') ? 'audio' : null)
+      : null;
 
   const handleMerge = useCallback(async () => {
     const validation = validateMergeFiles(files);
     if (!validation.valid) {
-      // Error will be shown via ErrorAlert component
       return;
     }
 
-    await startProcessing(async () => {
-      const totalSize = files.reduce((sum, f) => sum + f.file.size, 0);
-      const { newSize: mockSize } = calculateCompressedSize(totalSize, FILE_SIZE_CONFIG.MERGE_SIZE_RATIO);
-      const fileName = `merged_video.${outputFormat}`;
-
-      return {
-        fileName,
-        size: `${mockSize}MB`,
-      };
+    await startProcessing(async (onProgress) => {
+      return await processMerge(files, outputFormat, onProgress);
     });
   }, [files, outputFormat, startProcessing]);
 
@@ -66,32 +67,29 @@ export default function MergePage() {
     setFiles(withOrder);
   }, []);
 
-  const error = fileError || processingError || (files.length > 0 && files.length < MERGE_MIN_FILES ? `Please add at least ${MERGE_MIN_FILES} files to merge` : '');
+  const validation = validateMergeFiles(files);
+  const error = fileError || processingError || (validation.valid ? '' : validation.error);
 
   const handleDownload = useCallback(() => {
-    if (result) {
-      downloadDataUrl('data:text/plain;charset=utf-8,Mock file', result.fileName);
+    if (result?.blob) {
+      downloadBlob(result.blob, result.fileName);
     }
   }, [result]);
 
   return (
-    <ToolLayout
-      icon={Layers}
-      title="Media Merge"
-      description="Combine multiple audio/video files into one"
-    >
+    <ToolLayout path="/media/merge">
       <TwoColumnLayout
         left={
           <div className="space-y-4">
             <ControlPanel title="Add Files">
               <FileUpload
-                label="Upload Video Files"
+                label="Upload Audio/Video"
                 onFilesSelected={handleFilesSelected}
-                accept="video/*"
+                accept="audio/*,video/*"
                 multiple={true}
               />
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">
-                Add at least {MERGE_MIN_FILES} files to merge
+                Add at least {MERGE_MIN_FILES} files of same format to merge.
               </p>
             </ControlPanel>
 
@@ -103,41 +101,17 @@ export default function MergePage() {
                 title={`Files Order (${files.length})`}
                 renderMetadata={(item) => (
                   <>
-                        <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                          {item.file.name}
-                        </p>
-                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                    <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                      {item.file.name}
+                    </p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
                       {formatFileSize(item.file.size, 'MB')}
-                        </p>
+                    </p>
                   </>
                 )}
                 getItemKey={(item) => item.id}
               />
             )}
-
-            <ControlPanel title="Output Format">
-              <Select
-                value={outputFormat}
-                onChange={(e) => setOutputFormat(e.target.value)}
-                className="text-sm"
-              >
-                <option value="">Select format</option>
-                <optgroup label="Video">
-                  {SUPPORTED_FORMATS.video.map((fmt) => (
-                    <option key={fmt} value={fmt}>
-                      {fmt.toUpperCase()}
-                    </option>
-                  ))}
-                </optgroup>
-                <optgroup label="Audio">
-                  {SUPPORTED_FORMATS.audio.map((fmt) => (
-                    <option key={fmt} value={fmt}>
-                      {fmt.toUpperCase()}
-                    </option>
-                  ))}
-                </optgroup>
-              </Select>
-            </ControlPanel>
 
             <Button
               onClick={handleMerge}
@@ -160,35 +134,26 @@ export default function MergePage() {
         }
         right={
           <div className="space-y-4">
-            <ErrorAlert error={error} />
+            {error && <ErrorAlert error={error} />}
 
             {merging && <ProgressBar progress={progress} label="Merging files..." />}
 
             {result && (
-              <SuccessResult
-                title="Merge Complete!"
-                message={`${files.length} files merged • ${result.size}`}
-                onDownload={handleDownload}
-                downloadLabel="Download Merged File"
-              />
+              <>
+                <MediaPreview
+                  file={previewFile}
+                  url={previewUrl}
+                  type={previewType}
+                  emptyMessage={result ? 'Preview not available' : 'Upload media to preview the first file in the list.'}
+                />
+                <SuccessResult
+                  title="Merge Complete!"
+                  message={`${files.length} files merged • ${result.size}`}
+                  onDownload={handleDownload}
+                  downloadLabel="Download Merged File"
+                />
+              </>
             )}
-
-            <ControlPanel title="Requirements">
-              <ul className="text-sm text-slate-600 dark:text-slate-400 space-y-2">
-                <li className="flex items-start gap-2">
-                  <span className="text-blue-500 mt-0.5">✓</span>
-                  <span>At least {MERGE_MIN_FILES} files</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-blue-500 mt-0.5">✓</span>
-                  <span>Same format recommended</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-blue-500 mt-0.5">✓</span>
-                  <span>Select output format</span>
-                </li>
-              </ul>
-            </ControlPanel>
           </div>
         }
       />

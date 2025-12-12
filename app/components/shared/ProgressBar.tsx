@@ -1,8 +1,4 @@
-interface ProgressBarProps {
-  progress: number;
-  label?: string;
-  className?: string;
-}
+import { ProgressBarProps } from '@/app/lib/types';
 
 export const ProgressBar = ({ progress, label = 'Processing...', className = '' }: ProgressBarProps) => {
   return (
@@ -22,4 +18,3 @@ export const ProgressBar = ({ progress, label = 'Processing...', className = '' 
     </div>
   );
 };
-

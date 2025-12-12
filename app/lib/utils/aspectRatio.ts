@@ -8,9 +8,9 @@ export const hexToRgba = (hex: string, alpha: number): string => {
   const full =
     normalized.length === 3
       ? normalized
-          .split('')
-          .map((c) => c + c)
-          .join('')
+        .split('')
+        .map((c) => c + c)
+        .join('')
       : normalized.padEnd(6, '0');
   const num = parseInt(full, 16);
   const r = (num >> 16) & 255;
@@ -49,13 +49,11 @@ export const getImageMimeType = (format: OutputFormat): string => {
   }
 };
 
-
 export const generateDownloadFilename = (originalName: string, ratioId: string, extension: string): string => {
   const safeName = originalName.replace(/\.[^.]+$/, '');
   const ratioLabel = ratioId.replace(':', 'x');
   return `${safeName}-padded-${ratioLabel}.${extension}`;
 };
-
 
 /**
  * Generate padded image with aspect ratio
@@ -99,7 +97,7 @@ export const generatePaddedImage = async (
 
   const originalDims = { width: img.naturalWidth, height: img.naturalHeight };
   const { width: targetWidth, height: targetHeight } = targetSize;
-  
+
   const scale = Math.min(
     targetWidth / img.naturalWidth,
     targetHeight / img.naturalHeight
@@ -142,4 +140,3 @@ export const generatePaddedImage = async (
     resultDims: { width: targetWidth, height: targetHeight },
   };
 };
-

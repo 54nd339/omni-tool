@@ -1,13 +1,8 @@
 'use client';
 
-import { FC, InputHTMLAttributes, ReactNode } from 'react';
+import { FC } from 'react';
 import { cn } from '@/app/lib/utils';
-
-interface CheckboxProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'type'> {
-  label?: ReactNode;
-  helperText?: string;
-  error?: string;
-}
+import { CheckboxProps } from '@/app/lib/types';
 
 export const Checkbox: FC<CheckboxProps> = ({
   label,
@@ -45,4 +40,3 @@ export const Checkbox: FC<CheckboxProps> = ({
     </div>
   );
 };
-

@@ -76,4 +76,3 @@ export const validatePdfFile = (file: File): { valid: boolean; error?: string } 
   }
   return { valid: true };
 };
-

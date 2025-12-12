@@ -5,8 +5,7 @@ import { ToolLayout, TwoColumnLayout, ControlPanel, TextAreaInput, Button, CopyB
 import { encodeText, decodeText, formatErrorMessage } from '@/app/lib/utils';
 import { useClipboard } from '@/app/lib/hooks';
 import { CRYPTO_DEFAULTS } from '@/app/lib/constants';
-
-type EncodingType = 'base64' | 'url' | 'html' | 'uri';
+import type { EncodingType } from '@/app/lib/types/crypto';
 
 export default function UrlPage() {
   const [input, setInput] = useState('');
@@ -74,7 +73,7 @@ export default function UrlPage() {
         right={
           <div className="space-y-4">
             <ControlPanel title="Output">
-              <TextAreaInput label="Result" value={output} onChange={() => {}} readOnly rows={6} />
+              <TextAreaInput label="Result" value={output} onChange={() => { }} readOnly rows={6} />
             </ControlPanel>
 
             {output && (

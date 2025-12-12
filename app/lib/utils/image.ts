@@ -113,7 +113,7 @@ export const convertAndDownloadImage = async (
   const extension = format === 'jpeg' ? 'jpg' : format;
   const baseName = originalFileName.replace(/\.[^.]+$/, '');
   const filename = `${baseName}.${extension}`;
-  
+
   downloadBlob(blob, filename);
 };
 
@@ -190,4 +190,3 @@ export const loadImageFile = async (file: File, normalizedBlob: Blob): Promise<{
     img.src = url;
   });
 };
-

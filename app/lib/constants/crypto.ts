@@ -12,4 +12,3 @@ export const CRYPTO_DEFAULTS = {
   JWT_SECRET: 'your-secret-key',
   URL_ENCODING_TYPE: 'base64' as const,
 } as const;
-

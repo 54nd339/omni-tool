@@ -39,7 +39,7 @@ export default function YamlPage() {
             {output && (
               <>
                 <ControlPanel title="JSON Output">
-                  <TextAreaInput label="Result" value={output} onChange={() => {}} readOnly rows={8} />
+                  <TextAreaInput label="Result" value={output} onChange={() => { }} readOnly rows={8} />
                 </ControlPanel>
 
                 <CopyButton

@@ -1,13 +1,6 @@
 import { CheckCircle, Download } from 'lucide-react';
+import { SuccessResultProps } from '@/app/lib/types';
 import { Button } from './Button';
-
-interface SuccessResultProps {
-  title?: string;
-  message: string;
-  onDownload: () => void;
-  downloadLabel?: string;
-  className?: string;
-}
 
 export const SuccessResult = ({
   title = 'Complete!',
@@ -35,4 +28,3 @@ export const SuccessResult = ({
     </div>
   );
 };
-

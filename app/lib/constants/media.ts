@@ -1,4 +1,4 @@
-import { FormatOptions, RepairOption } from '@/app/lib/types';
+import { FormatOptions } from '@/app/lib/types';
 
 export const SUPPORTED_FORMATS = {
   video: ['mp4', 'webm', 'mkv', 'avi', 'mov', 'flv', 'wmv', 'ts'] as const,
@@ -27,30 +27,17 @@ export const FORMAT_OPTIONS: FormatOptions = {
   },
 };
 
-export const REPAIR_OPTIONS: Record<string, RepairOption> = {
-  repair: {
-    label: 'Repair Corrupted File',
-    description: 'Attempt to repair a corrupted or damaged media file',
-  },
-  compress_low: {
-    label: 'Compress (Low)',
-    description: 'Compress file with low quality reduction (~60% smaller)',
-  },
-  compress_medium: {
-    label: 'Compress (Medium)',
-    description: 'Compress file with medium quality reduction (~40% smaller)',
-  },
-  compress_high: {
-    label: 'Compress (High)',
-    description: 'Compress file with minimal quality reduction (~20% smaller)',
-  },
-  optimize: {
-    label: 'Optimize for Web',
-    description: 'Optimize file for faster streaming and playback',
-  },
+export const REPAIR_OPTIONS: Record<string, string> = {
+  original: 'Original Quality',
+  repair: 'Repair Corrupted File',
+  compress_low: 'Compress (Low)',
+  compress_medium: 'Compress (Medium)',
+  compress_high: 'Compress (High)',
+  optimize: 'Optimize for Web',
 };
 
 export const COMPRESSION_RATIOS: Record<string, number> = {
+  original: 1,
   repair: 0.95,
   compress_low: 0.4,
   compress_medium: 0.6,
@@ -77,6 +64,7 @@ export const FILE_SIZE_CONFIG = {
 
 export const MERGE_MIN_FILES = 2;
 export const SPLIT_MIN_SEGMENTS = 1;
+export const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
 
 export const TIME_FORMAT = 'MM:SS' as const;
 export const DEFAULT_SEGMENT_DURATION = '00:30' as const;

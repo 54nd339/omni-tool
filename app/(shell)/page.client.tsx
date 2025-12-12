@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { TOOL_CARDS } from '@/app/lib/constants';
+import { NAV_ITEMS } from '@/app/lib/constants';
 
 export default function HomeClient() {
   const router = useRouter();
@@ -24,7 +24,7 @@ export default function HomeClient() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {TOOL_CARDS.map((tool) => (
+            {NAV_ITEMS.map((tool) => (
               <button
                 key={tool.href}
                 onClick={() => handleCardClick(tool.href)}
@@ -34,7 +34,7 @@ export default function HomeClient() {
                   <tool.icon className="w-6 h-6" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-1">{tool.title}</h3>
+                  <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-1">{tool.label}</h3>
                   <p className="text-sm text-slate-500 dark:text-slate-400">{tool.description}</p>
                 </div>
               </button>

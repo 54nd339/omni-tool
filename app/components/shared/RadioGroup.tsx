@@ -1,22 +1,6 @@
-'use client';
-
-import { FC, ReactNode } from 'react';
+import { FC } from 'react';
 import { cn } from '@/app/lib/utils';
-
-export interface RadioOption {
-  value: string;
-  label: ReactNode;
-  description?: ReactNode;
-}
-
-interface RadioGroupProps {
-  name: string;
-  value: string;
-  onChange: (value: string) => void;
-  options: RadioOption[];
-  className?: string;
-  error?: string;
-}
+import { RadioGroupProps } from '@/app/lib/types';
 
 export const RadioGroup: FC<RadioGroupProps> = ({
   name,
@@ -60,4 +44,3 @@ export const RadioGroup: FC<RadioGroupProps> = ({
     </div>
   );
 };
-

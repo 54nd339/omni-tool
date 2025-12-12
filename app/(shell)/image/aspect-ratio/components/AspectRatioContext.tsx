@@ -1,7 +1,8 @@
 'use client';
 
 import { createContext, useContext, ReactNode } from 'react';
-import { useAspectRatio, UseAspectRatioResult } from '@/app/lib/hooks/useAspectRatio';
+import { useAspectRatio } from '@/app/lib/hooks';
+import type { UseAspectRatioResult } from '@/app/lib/types';
 
 const AspectRatioContext = createContext<UseAspectRatioResult | null>(null);
 
@@ -21,4 +22,3 @@ export function useAspectRatioContext() {
   }
   return context;
 }
-

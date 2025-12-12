@@ -1,16 +1,7 @@
-import { type RefObject, type FC } from 'react';
+import { type FC } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { ControlPanel, Button } from '@/app/components/shared';
-
-interface PdfPreviewProps {
-  canvasRef: RefObject<HTMLCanvasElement | null>;
-  totalPages: number;
-  currentPage: number;
-  onPageChange: (page: number) => void;
-  isLoaded: boolean;
-  hasSource?: boolean;
-  label?: string;
-}
+import { PdfPreviewProps } from '@/app/lib/types';
 
 export const PdfPreview: FC<PdfPreviewProps> = ({
   canvasRef,

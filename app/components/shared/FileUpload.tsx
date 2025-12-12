@@ -1,6 +1,4 @@
-'use client';
-
-import { type FC } from 'react';
+import { type FC, useMemo } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Upload } from 'lucide-react';
 import { cn } from '@/app/lib/utils';
@@ -13,10 +11,23 @@ export const FileUpload: FC<FileUploadProps> = ({
   onFilesSelected,
   className,
 }) => {
+  const acceptObj = useMemo(() => {
+    if (accept === '*') return undefined;
+
+    const types = accept.split(',').map((t) => t.trim());
+    const result: Record<string, string[]> = {};
+
+    types.forEach((type) => {
+      result[type] = [];
+    });
+
+    return result;
+  }, [accept]);
+
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop: onFilesSelected,
     multiple,
-    accept: accept !== '*' ? { [accept.split('/')[0] + '/*']: [accept] } : undefined,
+    accept: acceptObj,
   });
 
   return (

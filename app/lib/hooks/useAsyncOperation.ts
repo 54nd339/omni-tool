@@ -1,36 +1,6 @@
 import { useState, useCallback } from 'react';
 import { formatErrorMessage } from '@/app/lib/utils';
-
-export type FeedbackType = 'error' | 'message';
-
-export interface AsyncOperationOptions {
-  feedbackType?: FeedbackType;
-}
-
-export interface AsyncOperationErrorResult {
-  loading: boolean;
-  error: string | null;
-  execute: <T, TArgs extends any[] = []>(
-    operation: (...args: TArgs) => Promise<T>,
-    ...args: TArgs
-  ) => Promise<T | null>;
-  setError: (error: string | null) => void;
-}
-
-export interface AsyncOperationMessageResult {
-  loading: boolean;
-  message: string;
-  execute: <T, TArgs extends any[] = []>(
-    operation: (...args: TArgs) => Promise<T>,
-    ...args: TArgs
-  ) => Promise<T | null>;
-  setMessage: (message: string) => void;
-  clearMessage: () => void;
-}
-
-export type AsyncOperationResult<TFeedback extends FeedbackType> = TFeedback extends 'error'
-  ? AsyncOperationErrorResult
-  : AsyncOperationMessageResult;
+import type { FeedbackType, AsyncOperationResult, AsyncOperationOptions } from '@/app/lib/types';
 
 /**
  * Unified hook to manage async operation with configurable feedback type
@@ -53,7 +23,7 @@ export function useAsyncOperation<TFeedback extends FeedbackType = 'error'>(
     ): Promise<T | null> => {
       setLoading(true);
       if (feedbackType === 'error') {
-      setError(null);
+        setError(null);
       } else {
         setMessage('Processing...');
       }
@@ -84,11 +54,11 @@ export function useAsyncOperation<TFeedback extends FeedbackType = 'error'>(
   }, []);
 
   if (feedbackType === 'error') {
-  return {
-    loading,
-    error,
-    execute,
-    setError,
+    return {
+      loading,
+      error,
+      execute,
+      setError,
     } as AsyncOperationResult<TFeedback>;
   } else {
     return {
@@ -98,5 +68,5 @@ export function useAsyncOperation<TFeedback extends FeedbackType = 'error'>(
       setMessage,
       clearMessage,
     } as AsyncOperationResult<TFeedback>;
-}
+  }
 }

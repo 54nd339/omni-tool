@@ -11,9 +11,5 @@ export * from './media';
 // UI constants
 export * from './ui';
 
-// Page configurations
-export * from './pages';
-
-// Navigation and route constants
+// Navigation, page configuration, and metadata
 export * from './navigation';
-

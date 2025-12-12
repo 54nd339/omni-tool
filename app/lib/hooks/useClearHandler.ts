@@ -1,9 +1,5 @@
 import { useCallback } from 'react';
-
-export interface ClearHandlerOptions {
-  clearFiles?: () => void;
-  onClear?: () => void;
-}
+import type { ClearHandlerOptions } from '@/app/lib/types';
 
 /**
  * Hook to create a standardized clear/reset handler
@@ -23,4 +19,3 @@ export function useClearHandler(options: ClearHandlerOptions = {}) {
 
   return { handleClear };
 }
-

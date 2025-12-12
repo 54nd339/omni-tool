@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Auto-copied public files
+/public/ffmpeg/*
+/public/pdf.worker.min.mjs

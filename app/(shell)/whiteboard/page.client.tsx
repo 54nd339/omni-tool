@@ -48,11 +48,11 @@ export default function WhiteboardPage() {
             {fallback ? 'Try Excalidraw' : 'Use fallback'}
           </Button>
         </div>
-        
+
         <div className="h-[600px] w-full rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden bg-white">
           {fallback ? (
             <textarea
-              className="w-full h-full p-4 bg-slate-50 dark:bg-slate-900 text-sm text-slate-600 dark:text-slate-200" 
+              className="w-full h-full p-4 bg-slate-50 dark:bg-slate-900 text-sm text-slate-600 dark:text-slate-200"
               placeholder="Fallback sketchpad..."
             />
           ) : (
@@ -66,5 +66,3 @@ export default function WhiteboardPage() {
     </div>
   );
 };
-
-

@@ -1,15 +1,8 @@
-import { FC, ReactNode, useCallback } from 'react';
+import { FC, useCallback } from 'react';
 import { CopyButton } from './CopyButton';
 import { useClipboard } from '@/app/lib/hooks';
 import { cn } from '@/app/lib/utils';
-
-interface ResultDisplayProps {
-  value: string;
-  label?: string;
-  className?: string;
-  copyButtonLabel?: string;
-  children?: ReactNode;
-}
+import { ResultDisplayProps } from '@/app/lib/types';
 
 export const ResultDisplay: FC<ResultDisplayProps> = ({
   value,
@@ -19,7 +12,7 @@ export const ResultDisplay: FC<ResultDisplayProps> = ({
   children,
 }) => {
   const clipboard = useClipboard();
-  
+
   const handleCopy = useCallback(async () => {
     if (value) {
       await clipboard.copy(value);
@@ -48,4 +41,3 @@ export const ResultDisplay: FC<ResultDisplayProps> = ({
     </div>
   );
 };
-

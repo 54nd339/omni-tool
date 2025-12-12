@@ -2,10 +2,10 @@
 
 import { useState, useCallback } from 'react';
 import { Scissors, Loader, Trash2 } from 'lucide-react';
-import { ToolLayout, ControlPanel, TwoColumnLayout, Button, Input, FileUpload, ErrorAlert, ProgressBar, SuccessResult } from '@/app/components/shared';
+import { ToolLayout, ControlPanel, TwoColumnLayout, Button, Input, FileUpload, ErrorAlert, ProgressBar, SuccessResult, DoubleRangeSlider, MediaPreview } from '@/app/components/shared';
 import { PROCESSING_CONFIG, DEFAULT_SEGMENT_DURATION, DEFAULT_SEGMENT_START } from '@/app/lib/constants';
-import { validateFileFormat, validateSegments, downloadDataUrl, formatFileSize } from '@/app/lib/utils';
-import { useFileUpload, useMediaProcessing } from '@/app/lib/hooks';
+import { validateMediaFile, validateSegments, formatFileSize, downloadBlob, processSplit, getMediaDuration, timeToSeconds, secondsToTime } from '@/app/lib/utils';
+import { useFileUpload, useMediaProcessing, useProcessedSegments, useSegmentRangeHandlers } from '@/app/lib/hooks';
 import { SplitSegment } from '@/app/lib/types';
 
 export default function SplitPage() {
@@ -14,10 +14,16 @@ export default function SplitPage() {
 
   const { file, error: fileError, handleFilesSelected } = useFileUpload<File>({
     accept: 'audio/*,video/*',
-    validator: validateFileFormat,
-    onFileSelected: (selectedFile) => {
-      // Simulate getting duration
-      setDuration(300); // 5 minutes
+    validator: validateMediaFile,
+    onFileSelected: async (selectedFile) => {
+      // Get actual media duration
+      try {
+        const actualDuration = await getMediaDuration(selectedFile);
+        setDuration(actualDuration);
+      } catch (error) {
+        console.error('Failed to get media duration:', error);
+        setDuration(300); // Fallback to 5 minutes
+      }
       // Initialize with one segment if empty
       if (segments.length === 0) {
         setSegments([
@@ -28,31 +34,41 @@ export default function SplitPage() {
     },
   });
 
+  const totalDuration = Math.max(duration, timeToSeconds(DEFAULT_SEGMENT_DURATION));
+
   const {
     processing: splitting,
     progress,
     error: processingError,
     result,
     startProcessing,
-  } = useMediaProcessing<{ count: number; totalSize: string }>({
-    progressInterval: PROCESSING_CONFIG.SPLIT_PROGRESS_INTERVAL,
-    progressIncrement: PROCESSING_CONFIG.SPLIT_PROGRESS_INCREMENT,
-    processingDelay: PROCESSING_CONFIG.PROCESSING_DELAY,
+  } = useMediaProcessing<{ count: number; totalSize: string; zipBlob: Blob }>({
+    useRealProgress: true,
     resetDelay: PROCESSING_CONFIG.RESET_DELAY,
+  });
+
+  const processedSegments = useProcessedSegments({
+    zipBlob: result?.zipBlob,
+    originalFileName: file?.name,
   });
 
   const handleAddSegment = useCallback(() => {
     const newId = (Math.max(...segments.map((s) => parseInt(s.id) || 0), 0) + 1).toString();
+    const startSeconds = timeToSeconds(DEFAULT_SEGMENT_START);
+    const defaultDurationSeconds = timeToSeconds(DEFAULT_SEGMENT_DURATION);
+    const availableDuration = Math.max(duration, defaultDurationSeconds);
+    const safeEndSeconds = Math.max(startSeconds + 1, Math.min(availableDuration, defaultDurationSeconds));
+
     setSegments((prev) => [
       ...prev,
       {
         id: newId,
-        startTime: DEFAULT_SEGMENT_START,
-        endTime: DEFAULT_SEGMENT_DURATION,
+        startTime: secondsToTime(startSeconds),
+        endTime: secondsToTime(safeEndSeconds),
         name: `Segment ${prev.length + 1}`,
       },
     ]);
-  }, [segments]);
+  }, [segments, duration]);
 
   const handleRemoveSegment = useCallback((id: string) => {
     if (segments.length > 1) {
@@ -67,6 +83,12 @@ export default function SplitPage() {
     []
   );
 
+  const { handleStartChange, handleEndChange } = useSegmentRangeHandlers({
+    segments,
+    setSegments,
+    totalDuration,
+  });
+
   const handleSplit = useCallback(async () => {
     if (!file) return;
 
@@ -75,13 +97,8 @@ export default function SplitPage() {
       return;
     }
 
-    await startProcessing(async () => {
-      const totalSize = Math.round((file.size * segments.length * 0.3) / 1024 / 1024 * 100) / 100;
-
-      return {
-        count: segments.length,
-        totalSize: `${totalSize}MB`,
-      };
+    await startProcessing(async (onProgress) => {
+      return await processSplit(file, segments, onProgress);
     });
   }, [file, segments, duration, startProcessing]);
 
@@ -89,17 +106,13 @@ export default function SplitPage() {
   const error = fileError || processingError || validationError;
 
   const handleDownload = useCallback(() => {
-    if (result) {
-      downloadDataUrl('data:text/plain;charset=utf-8,Mock file', `segments_${Date.now()}.zip`);
+    if (result?.zipBlob) {
+      downloadBlob(result.zipBlob, `segments_${Date.now()}.zip`);
     }
   }, [result]);
 
   return (
-    <ToolLayout
-      icon={Scissors}
-      title="Media Split"
-      description="Split audio/video files into segments"
-    >
+    <ToolLayout path="/media/split">
       <TwoColumnLayout
         left={
           <div className="space-y-4">
@@ -116,7 +129,7 @@ export default function SplitPage() {
                     {file.name}
                   </p>
                   <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                    {formatFileSize(file.size, 'MB')}
+                    {formatFileSize(file.size, 'MB')} • Duration: {Math.floor(duration / 60)}:{String(duration % 60).padStart(2, '0')}
                   </p>
                 </div>
               )}
@@ -129,49 +142,48 @@ export default function SplitPage() {
                 </p>
               ) : (
                 <div className="space-y-3">
-                  {segments.map((segment) => (
-                    <div
-                      key={segment.id}
-                      className="p-3 bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700"
-                    >
-                      <div className="flex items-center justify-between mb-2">
-                        <Input
-                          type="text"
-                          value={segment.name}
-                          onChange={(e) => handleUpdateSegment(segment.id, 'name', e.target.value)}
-                          placeholder="Segment name"
-                          className="flex-1 text-sm"
+                  {segments.map((segment) => {
+                    const startSeconds = timeToSeconds(segment.startTime);
+                    const endSeconds = timeToSeconds(segment.endTime);
+
+                    return (
+                      <div
+                        key={segment.id}
+                        className="p-3 bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700"
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <Input
+                            type="text"
+                            value={segment.name}
+                            onChange={(e) => handleUpdateSegment(segment.id, 'name', e.target.value)}
+                            placeholder="Segment name"
+                            className="flex-1 text-sm"
+                          />
+                          {segments.length > 1 && (
+                            <Button
+                              onClick={() => handleRemoveSegment(segment.id)}
+                              variant="outline"
+                              className="ml-2 p-1.5 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/20"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          )}
+                        </div>
+                        <DoubleRangeSlider
+                          label="Time Range"
+                          startValue={startSeconds}
+                          endValue={endSeconds}
+                          min={0}
+                          max={totalDuration}
+                          step={1}
+                          startDisplayValue={segment.startTime}
+                          endDisplayValue={segment.endTime}
+                          onStartChange={(value) => handleStartChange(segment.id, value)}
+                          onEndChange={(value) => handleEndChange(segment.id, value)}
                         />
-                        {segments.length > 1 && (
-                          <Button
-                            onClick={() => handleRemoveSegment(segment.id)}
-                            variant="outline"
-                            className="ml-2 p-1.5 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/20"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        )}
                       </div>
-                      <div className="grid grid-cols-2 gap-2">
-                        <Input
-                          type="text"
-                          label="Start (MM:SS)"
-                          value={segment.startTime}
-                          onChange={(e) => handleUpdateSegment(segment.id, 'startTime', e.target.value)}
-                          placeholder="00:00"
-                          className="text-sm"
-                        />
-                        <Input
-                          type="text"
-                          label="End (MM:SS)"
-                          value={segment.endTime}
-                          onChange={(e) => handleUpdateSegment(segment.id, 'endTime', e.target.value)}
-                          placeholder="00:30"
-                          className="text-sm"
-                        />
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
 
@@ -209,25 +221,34 @@ export default function SplitPage() {
 
             {splitting && <ProgressBar progress={progress} label="Splitting file..." />}
 
-            {result && (
-              <SuccessResult
-                title="Split Complete!"
-                message={`Created ${result.count} segments`}
-                onDownload={handleDownload}
-                downloadLabel="Download All"
-              />
-            )}
+            {result && processedSegments.length > 0 && (
+              <div className="space-y-4">
+                <ControlPanel title={`Processed Segments (${processedSegments.length})`}>
+                  <div className="space-y-4">
+                    {processedSegments.map((segment, index) => (
+                      <div key={index} className="space-y-2">
+                        <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                          {segment.name}
+                        </p>
+                        <MediaPreview
+                          file={segment.blob}
+                          url={segment.url}
+                          type={segment.type}
+                          emptyMessage="Preview not available"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </ControlPanel>
 
-            <ControlPanel title="Help">
-              <div className="text-sm text-slate-600 dark:text-slate-400 space-y-2">
-                <p className="font-medium">Time Format: MM:SS</p>
-                <ul className="space-y-1 ml-2 text-xs">
-                  <li>• 00:30 = 30 seconds</li>
-                  <li>• 01:45 = 1 minute 45 seconds</li>
-                  <li>• 05:00 = 5 minutes</li>
-                </ul>
+                <SuccessResult
+                  title="Split Complete!"
+                  message={`Created ${result.count} segments`}
+                  onDownload={handleDownload}
+                  downloadLabel="Download All"
+                />
               </div>
-            </ControlPanel>
+            )}
           </div>
         }
       />

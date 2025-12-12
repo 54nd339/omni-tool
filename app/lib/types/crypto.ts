@@ -8,3 +8,5 @@ export type HashResults = {
 export type CipherMode = 'aes' | 'caesar' | 'rot13';
 
 export type JwtPayloadObject = Record<string, unknown>;
+
+export type EncodingType = 'base64' | 'url' | 'html' | 'uri';

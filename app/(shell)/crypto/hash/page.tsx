@@ -1,5 +1,5 @@
 import HashPageClient from './page.client';
-import { getRouteMetadata } from '@/app/lib/metadata';
+import { getRouteMetadata } from '@/app/lib/constants';
 
 export const metadata = getRouteMetadata('/crypto/hash');
 

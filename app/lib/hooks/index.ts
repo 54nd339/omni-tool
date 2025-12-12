@@ -11,4 +11,5 @@ export { useAsyncOperation } from './useAsyncOperation';
 export { useClearHandler } from './useClearHandler';
 export { useLoadingMessage } from './useLoadingMessage';
 export { useAspectRatio } from './useAspectRatio';
-export type { UseAspectRatioResult, AspectRatioState } from './useAspectRatio';
+export { useProcessedSegments } from './useProcessedSegments';
+export { useSegmentRangeHandlers } from './useSegmentRangeHandlers';

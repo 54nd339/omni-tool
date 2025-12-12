@@ -64,26 +64,26 @@ export default function ConvertPage() {
             <div className="space-y-3">
               <Select
                 label="Format"
-                  value={format}
-                  onChange={(e) => setFormat(e.target.value as PdfImageFormat)}
-                >
-                  {PDF_IMAGE_FORMAT_OPTIONS.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
+                value={format}
+                onChange={(e) => setFormat(e.target.value as PdfImageFormat)}
+              >
+                {PDF_IMAGE_FORMAT_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
               </Select>
 
               {format !== 'png' && (
                 <RangeSlider
                   label="Quality"
-                    value={quality}
+                  value={quality}
                   min={0.1}
                   max={1}
                   step={0.01}
                   displayValue={`${Math.round(quality * 100)}%`}
-                    onChange={(e) => setQuality(parseFloat(e.target.value))}
-                  />
+                  onChange={(e) => setQuality(parseFloat(e.target.value))}
+                />
               )}
             </div>
           </ControlPanel>

@@ -1,24 +1,7 @@
 import { useState, useCallback } from 'react';
 import { PROCESSING_CONFIG } from '@/app/lib/constants';
 import { simulateProgress, formatErrorMessage } from '@/app/lib/utils';
-
-export interface MediaProcessingOptions {
-  onComplete?: (result: any) => void;
-  onError?: (error: Error) => void;
-  progressInterval?: number;
-  progressIncrement?: number;
-  processingDelay?: number;
-  resetDelay?: number;
-}
-
-export interface MediaProcessingResult<T = any> {
-  processing: boolean;
-  progress: number;
-  error: string;
-  result: T | null;
-  startProcessing: (processor: () => Promise<T>) => Promise<void>;
-  reset: () => void;
-}
+import type { MediaProcessingOptions, MediaProcessingResult } from '@/app/lib/types';
 
 export function useMediaProcessing<T = any>(
   options: MediaProcessingOptions = {}
@@ -30,6 +13,8 @@ export function useMediaProcessing<T = any>(
     progressIncrement = PROCESSING_CONFIG.PROGRESS_INCREMENT,
     processingDelay = PROCESSING_CONFIG.PROCESSING_DELAY,
     resetDelay = PROCESSING_CONFIG.RESET_DELAY,
+    useRealProgress = false,
+    onProgress: externalOnProgress,
   } = options;
 
   const [processing, setProcessing] = useState(false);
@@ -38,18 +23,34 @@ export function useMediaProcessing<T = any>(
   const [result, setResult] = useState<T | null>(null);
 
   const startProcessing = useCallback(
-    async (processor: () => Promise<T>) => {
+    async (processor: (onProgress?: (progress: number) => void) => Promise<T>) => {
       setProcessing(true);
       setError('');
       setProgress(0);
 
       try {
-        const progressIntervalId = simulateProgress(progressInterval, progressIncrement, setProgress);
+        let progressIntervalId: NodeJS.Timeout | null = null;
 
-        await new Promise((resolve) => setTimeout(resolve, processingDelay));
-        clearInterval(progressIntervalId);
+        // Use real progress if enabled, otherwise simulate
+        const handleProgress = (progress: number) => {
+          setProgress(progress);
+          if (externalOnProgress) {
+            externalOnProgress(progress);
+          }
+        };
 
-        const processingResult = await processor();
+        if (!useRealProgress) {
+          // Simulate progress for backward compatibility
+          progressIntervalId = simulateProgress(progressInterval, progressIncrement, setProgress);
+          await new Promise((resolve) => setTimeout(resolve, processingDelay));
+          if (progressIntervalId) clearInterval(progressIntervalId);
+        }
+
+        // Call processor with progress callback if using real progress
+        const processingResult = useRealProgress
+          ? await processor(handleProgress)
+          : await processor();
+
         setProgress(100);
         setResult(processingResult);
 
@@ -72,7 +73,7 @@ export function useMediaProcessing<T = any>(
         setProcessing(false);
       }
     },
-    [progressInterval, progressIncrement, processingDelay, resetDelay, onComplete, onError]
+    [progressInterval, progressIncrement, processingDelay, resetDelay, onComplete, onError, useRealProgress, externalOnProgress]
   );
 
   const reset = useCallback(() => {
@@ -91,4 +92,3 @@ export function useMediaProcessing<T = any>(
     reset,
   };
 }
-

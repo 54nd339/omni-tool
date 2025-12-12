@@ -1,43 +1,9 @@
 import { useReducer, useMemo, useCallback, useRef } from 'react';
-import type { BackgroundMode, OutputFormat, ImageDimensions, RatioOption } from '@/app/lib/types';
+import type { AspectRatioAction, AspectRatioState, BackgroundMode, OutputFormat, RatioOption, UseAspectRatioResult } from '@/app/lib/types';
 import { ASPECT_RATIO_DEFAULTS, ASPECT_RATIO_PRESETS } from '@/app/lib/constants';
 import { clampRatioValue, buildTargetSize, generatePaddedImage, formatErrorMessage } from '@/app/lib/utils';
 
-export interface AspectRatioState {
-  image: { file: File } | null;
-  originalDims: ImageDimensions | null;
-  resultDims: ImageDimensions | null;
-  ratioId: string;
-  customRatio: { width: number; height: number };
-  longEdge: number;
-  backgroundMode: BackgroundMode;
-  customColor: string;
-  customOpacity: number;
-  allowUpscale: boolean;
-  outputFormat: OutputFormat;
-  processed: { outputUrl: string; mime: string } | null;
-  error: string | null;
-  processing: boolean;
-}
-
-type AspectRatioAction =
-  | { type: 'SET_IMAGE'; payload: { file: File } | null }
-  | { type: 'SET_RATIO_ID'; payload: string }
-  | { type: 'SET_CUSTOM_RATIO'; payload: { width: number; height: number } }
-  | { type: 'SET_LONG_EDGE'; payload: number }
-  | { type: 'SET_BACKGROUND_MODE'; payload: BackgroundMode }
-  | { type: 'SET_CUSTOM_COLOR'; payload: string }
-  | { type: 'SET_CUSTOM_OPACITY'; payload: number }
-  | { type: 'SET_ALLOW_UPSCALE'; payload: boolean }
-  | { type: 'SET_OUTPUT_FORMAT'; payload: OutputFormat }
-  | { type: 'SET_PROCESSING'; payload: boolean }
-  | { type: 'SET_PROCESSED'; payload: { outputUrl: string; mime: string } | null }
-  | { type: 'SET_ERROR'; payload: string | null }
-  | { type: 'SET_ORIGINAL_DIMS'; payload: ImageDimensions | null }
-  | { type: 'SET_RESULT_DIMS'; payload: ImageDimensions | null }
-  | { type: 'RESET' };
-
-const initialState: AspectRatioState = {
+export const initialState: AspectRatioState = {
   image: null,
   originalDims: null,
   resultDims: null,
@@ -122,30 +88,8 @@ function aspectRatioReducer(
   }
 }
 
-export interface UseAspectRatioResult {
-  // State
-  state: AspectRatioState;
-
-  // Derived values
-  selectedRatio: RatioOption;
-  targetSize: { width: number; height: number };
-
-  // Actions
-  setImage: (image: { file: File } | null) => void;
-  setRatioId: (id: string) => void;
-  setCustomRatio: (ratio: { width: number; height: number }) => void;
-  setLongEdge: (value: number) => void;
-  setBackgroundMode: (mode: BackgroundMode) => void;
-  setCustomColor: (color: string) => void;
-  setCustomOpacity: (opacity: number) => void;
-  setAllowUpscale: (allow: boolean) => void;
-  setOutputFormat: (format: OutputFormat) => void;
-  reset: () => void;
-
-  // Processing
-  processImage: (imageUrl: string, canvas: HTMLCanvasElement) => Promise<void>;
-  canvasRef: React.RefObject<HTMLCanvasElement | null>;
-}
+// Re-export types for convenience
+export type { AspectRatioState, UseAspectRatioResult } from '@/app/lib/types';
 
 export function useAspectRatio(): UseAspectRatioResult {
   const [state, dispatch] = useReducer(aspectRatioReducer, initialState);

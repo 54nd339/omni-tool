@@ -11,13 +11,13 @@ let initialized = false;
 
 const initPdfJs = async () => {
   if (initialized) return pdfjsLib!;
-  
+
   if (typeof window === 'undefined') {
     throw new Error('PDF.js can only be used on the client side');
   }
 
   pdfjsLib = await import('pdfjs-dist');
-  
+
   // Configure worker - use worker from public directory
   pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
 
@@ -33,14 +33,14 @@ export const renderPdfPreview = async (
   try {
     const lib = await initPdfJs();
     let data: string | { data: ArrayBuffer };
-    
+
     if (typeof source === 'string') {
       data = source;
     } else {
       // Create a copy to avoid detached ArrayBuffer errors
       data = { data: source.slice(0) };
     }
-    
+
     const pdf = await lib.getDocument(data).promise;
     const page = await pdf.getPage(1);
     const viewport = page.getViewport({ scale });
@@ -66,14 +66,14 @@ export const getPdfPageCount = async (data: ArrayBuffer | Blob): Promise<number>
   try {
     const lib = await initPdfJs();
     let buffer: ArrayBuffer;
-    
+
     if (data instanceof Blob) {
       buffer = await data.arrayBuffer();
     } else {
       // Create a copy to avoid detached ArrayBuffer errors
       buffer = data.slice(0);
     }
-    
+
     const pdf = await lib.getDocument({ data: buffer }).promise;
     return pdf.numPages;
   } catch (error) {
@@ -91,14 +91,14 @@ export const renderPdfPage = async (
   try {
     const lib = await initPdfJs();
     let buffer: ArrayBuffer;
-    
+
     if (data instanceof Blob) {
       buffer = await data.arrayBuffer();
     } else {
       // Create a copy to avoid detached ArrayBuffer errors
       buffer = data.slice(0);
     }
-    
+
     const pdf = await lib.getDocument({ data: buffer }).promise;
     const page = await pdf.getPage(pageNum);
     const viewport = page.getViewport({ scale });

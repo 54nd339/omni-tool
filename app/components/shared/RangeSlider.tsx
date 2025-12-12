@@ -1,18 +1,6 @@
-'use client';
-
-import { FC, InputHTMLAttributes } from 'react';
+import { FC } from 'react';
 import { cn } from '@/app/lib/utils';
-
-interface RangeSliderProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'type'> {
-  label?: string;
-  value: number;
-  min: number;
-  max: number;
-  step?: number;
-  displayValue?: string | number;
-  helperText?: string;
-  error?: string;
-}
+import { RangeSliderProps } from '@/app/lib/types';
 
 export const RangeSlider: FC<RangeSliderProps> = ({
   label,
@@ -51,4 +39,3 @@ export const RangeSlider: FC<RangeSliderProps> = ({
     </div>
   );
 };
-

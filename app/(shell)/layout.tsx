@@ -4,31 +4,23 @@ import { useEffect, useMemo } from 'react';
 import { usePathname } from 'next/navigation';
 import { AppHeader, Sidebar } from '@/app/components/layout';
 import { useAppStore } from '@/app/store/appStore';
-import { ROUTE_TITLES } from '@/app/lib/constants';
+import { PAGE_CONFIGS } from '@/app/lib/constants';
 
 export default function ShellLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { theme, isOnline, sidebarOpen, toggleSidebar, setTheme, setOnlineStatus } = useAppStore();
+  const { theme, sidebarOpen, toggleSidebar, setTheme } = useAppStore();
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', theme === 'dark');
   }, [theme]);
 
-  useEffect(() => {
-    const handleStatus = () => setOnlineStatus(navigator.onLine);
-    handleStatus();
-    window.addEventListener('online', handleStatus);
-    window.addEventListener('offline', handleStatus);
-    return () => {
-      window.removeEventListener('online', handleStatus);
-      window.removeEventListener('offline', handleStatus);
-    };
-  }, [setOnlineStatus]);
-
   const title = useMemo(() => {
+    if (PAGE_CONFIGS[pathname]) {
+      return PAGE_CONFIGS[pathname].title;
+    }
+
     const parts = pathname.split('/').filter(Boolean);
-    const last = parts[parts.length - 1] || 'dashboard';
-    return ROUTE_TITLES[last] ?? last;
+    return parts.length > 0 ? parts[parts.length - 1] : 'Dashboard';
   }, [pathname]);
 
   return (
@@ -38,7 +30,6 @@ export default function ShellLayout({ children }: { children: React.ReactNode })
       <div className="flex-1 flex flex-col h-screen overflow-hidden relative">
         <AppHeader
           title={title}
-          isOnline={isOnline}
           theme={theme}
           onToggleSidebar={toggleSidebar}
           onToggleTheme={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
@@ -51,5 +42,3 @@ export default function ShellLayout({ children }: { children: React.ReactNode })
     </div>
   );
 }
-
-

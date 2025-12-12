@@ -1,23 +1,6 @@
 import { useState, useCallback } from 'react';
 import { formatErrorMessage } from '@/app/lib/utils';
-
-export interface FileUploadOptions<T = File> {
-  accept?: string | string[];
-  maxFiles?: number;
-  validator?: (file: File) => { valid: boolean; error?: string };
-  onFileSelected?: (file: File) => T | Promise<T>;
-  onFilesSelected?: (files: File[]) => T[] | Promise<T[]>;
-  transformFile?: (file: File) => T | Promise<T>;
-}
-
-export interface FileUploadResult<T = File> {
-  file: T | null;
-  files: T[];
-  error: string;
-  handleFilesSelected: (files: File[]) => Promise<void>;
-  clearError: () => void;
-  clearFiles: () => void;
-}
+import type { FileUploadOptions, FileUploadResult } from '@/app/lib/types';
 
 export function useFileUpload<T = File>(options: FileUploadOptions<T> = {}): FileUploadResult<T> {
   const {
@@ -37,7 +20,10 @@ export function useFileUpload<T = File>(options: FileUploadOptions<T> = {}): Fil
     (file: File): { valid: boolean; error?: string } => {
       // Type validation
       if (accept) {
-        const acceptArray = Array.isArray(accept) ? accept : [accept];
+        const acceptArray = Array.isArray(accept)
+          ? accept
+          : accept.split(',').map(s => s.trim());
+
         const fileType = file.type.toLowerCase();
         const fileName = file.name.toLowerCase();
 
@@ -168,4 +154,3 @@ export function useFileUpload<T = File>(options: FileUploadOptions<T> = {}): Fil
     clearFiles,
   };
 }
-

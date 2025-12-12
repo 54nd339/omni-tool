@@ -1,9 +1,5 @@
 import { AlertCircle } from 'lucide-react';
-
-interface ErrorAlertProps {
-  error: string;
-  className?: string;
-}
+import { ErrorAlertProps } from '@/app/lib/types';
 
 export const ErrorAlert = ({ error, className = '' }: ErrorAlertProps) => {
   if (!error) return null;
@@ -17,4 +13,3 @@ export const ErrorAlert = ({ error, className = '' }: ErrorAlertProps) => {
     </div>
   );
 };
-

@@ -85,7 +85,7 @@ export default function CipherPage() {
         right={
           <div className="space-y-4">
             <ControlPanel title="Output">
-              <TextAreaInput label="Result" value={output} onChange={() => {}} readOnly rows={6} />
+              <TextAreaInput label="Result" value={output} onChange={() => { }} readOnly rows={6} />
             </ControlPanel>
 
             {output && (

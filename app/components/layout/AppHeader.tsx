@@ -1,13 +1,12 @@
 'use client';
 
 import { type FC } from 'react';
-import { Menu, Moon, Sun, Wifi, WifiOff } from 'lucide-react';
+import { Menu, Moon, Sun } from 'lucide-react';
 import { AppHeaderProps } from '@/app/lib/types';
 import { Button } from '@/app/components/shared';
 
 export const AppHeader: FC<AppHeaderProps> = ({
   title,
-  isOnline,
   theme,
   onToggleTheme,
   onToggleSidebar,
@@ -21,17 +20,6 @@ export const AppHeader: FC<AppHeaderProps> = ({
     </div>
 
     <div className="flex items-center gap-3">
-      <div
-        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium ${
-          isOnline
-            ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
-            : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
-        }`}
-      >
-        {isOnline ? <Wifi className="w-3 h-3" /> : <WifiOff className="w-3 h-3" />}
-        <span className="hidden sm:inline">{isOnline ? 'Online' : 'Offline Mode'}</span>
-      </div>
-
       <Button
         onClick={onToggleTheme}
         variant="ghost"
@@ -43,4 +31,3 @@ export const AppHeader: FC<AppHeaderProps> = ({
     </div>
   </header>
 );
-

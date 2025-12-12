@@ -3,9 +3,10 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { FileText, Download } from 'lucide-react';
 import { ToolLayout, FileUpload, Button, DraggableList, ErrorAlert, PdfPreview } from '@/app/components/shared';
-import { createPdfFromImages, type ImageFile, renderPdfPreview } from '@/app/lib/tools';
+import { createPdfFromImages, renderPdfPreview } from '@/app/lib/tools';
 import { normalizeImageToPng, loadImageFile, downloadBlob, validateImageFile } from '@/app/lib/utils';
 import { useFileUpload, useLoadingMessage } from '@/app/lib/hooks';
+import type { ImageFile } from '@/app/lib/types';
 
 export default function CreatePdfPage() {
   const [images, setImages] = useState<ImageFile[]>([]);
@@ -88,11 +89,11 @@ export default function CreatePdfPage() {
     <ToolLayout path="/image/create-pdf">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-4">
-          <FileUpload 
-            label="Add Images" 
-            accept="image/*" 
-            multiple 
-            onFilesSelected={handleFilesSelected} 
+          <FileUpload
+            label="Add Images"
+            accept="image/*"
+            multiple
+            onFilesSelected={handleFilesSelected}
           />
 
           {images.length > 0 && (
@@ -112,9 +113,9 @@ export default function CreatePdfPage() {
 
           {fileError && <ErrorAlert error={fileError} />}
 
-          <Button 
-            onClick={handleCreatePdf} 
-            loading={loading} 
+          <Button
+            onClick={handleCreatePdf}
+            loading={loading}
             disabled={images.length === 0}
             className="w-full flex items-center justify-center gap-2"
           >
@@ -135,7 +136,7 @@ export default function CreatePdfPage() {
           />
 
           {pdfBlob && (
-            <Button 
+            <Button
               onClick={downloadPdf}
               className="w-full flex items-center justify-center gap-2"
             >

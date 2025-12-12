@@ -1,16 +1,8 @@
-import { useState, type ReactNode } from 'react';
+import { useState } from 'react';
 import { Trash2, GripVertical } from 'lucide-react';
+import { DraggableListProps } from '@/app/lib/types';
 import { ControlPanel } from './ControlPanel';
 import { Button } from './Button';
-
-interface DraggableListProps<T> {
-  items: T[];
-  onReorder: (items: T[]) => void;
-  onRemove: (index: number) => void;
-  title?: string;
-  renderMetadata: (item: T) => ReactNode;
-  getItemKey?: (item: T, index: number) => string | number;
-}
 
 export const DraggableList = <T,>({
   items,
@@ -44,10 +36,10 @@ export const DraggableList = <T,>({
 
     const newItems = [...items];
     const draggedItem_ = newItems[draggedItem];
-    
+
     newItems.splice(draggedItem, 1);
     newItems.splice(dropIndex, 0, draggedItem_);
-    
+
     onReorder(newItems);
     setDraggedItem(null);
     setDragOverItem(null);
@@ -72,13 +64,12 @@ export const DraggableList = <T,>({
             onDragLeave={handleDragLeave}
             onDrop={() => handleDrop(i)}
             onDragEnd={handleDragEnd}
-            className={`flex items-center gap-2 bg-slate-50 dark:bg-slate-900 p-3 rounded border-2 transition-all cursor-move ${
-              draggedItem === i
-                ? 'opacity-50 border-blue-400 dark:border-blue-600'
-                : dragOverItem === i
-                  ? 'border-blue-300 dark:border-blue-700 bg-blue-50 dark:bg-blue-900/20'
-                  : 'border-slate-200 dark:border-slate-700'
-            }`}
+            className={`flex items-center gap-2 bg-slate-50 dark:bg-slate-900 p-3 rounded border-2 transition-all cursor-move ${draggedItem === i
+              ? 'opacity-50 border-blue-400 dark:border-blue-600'
+              : dragOverItem === i
+                ? 'border-blue-300 dark:border-blue-700 bg-blue-50 dark:bg-blue-900/20'
+                : 'border-slate-200 dark:border-slate-700'
+              }`}
           >
             <GripVertical className="w-4 h-4 text-slate-400 flex-shrink-0" />
             <div className="flex-1 min-w-0">
@@ -99,4 +90,3 @@ export const DraggableList = <T,>({
     </ControlPanel>
   );
 };
-

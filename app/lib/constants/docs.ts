@@ -10,4 +10,3 @@ export const DOCS_DEFAULTS = {
   PDF_IMAGE_FORMAT: 'png' as PdfImageFormat,
   PDF_QUALITY: 0.92,
 } as const;
-

@@ -3,6 +3,7 @@ import {
   ALL_SUPPORTED_FORMATS,
   COMPRESSION_RATIOS,
   MERGE_MIN_FILES,
+  MAX_FILE_SIZE,
 } from '@/app/lib/constants';
 import { MediaFileItem, SplitSegment } from '@/app/lib/types';
 import { getFileExtensionFromName } from './file';
@@ -141,7 +142,41 @@ export const validateMergeFiles = (files: MediaFileItem[]): { valid: boolean; er
     };
   }
 
+  const hasAudio = files.some(f => f.file.type.startsWith('audio/'));
+  const hasVideo = files.some(f => f.file.type.startsWith('video/'));
+
+  if (hasAudio && hasVideo) {
+    return {
+      valid: false,
+      error: 'Cannot mix audio and video files. Please merge files of the same type.',
+    };
+  }
+
   return { valid: true };
 };
 
+/**
+ * Validate file size (100MB limit)
+ */
+export const validateFileSize = (file: File): { valid: boolean; error?: string } => {
+  if (file.size > MAX_FILE_SIZE) {
+    return {
+      valid: false,
+      error: `File size exceeds 100MB limit. Current size: ${(file.size / 1024 / 1024).toFixed(2)}MB`,
+    };
+  }
+  return { valid: true };
+};
 
+/**
+ * Combined file validation (format + size)
+ */
+export const validateMediaFile = (file: File): { valid: boolean; error?: string } => {
+  const formatCheck = validateFileFormat(file);
+  if (!formatCheck.valid) return formatCheck;
+
+  const sizeCheck = validateFileSize(file);
+  if (!sizeCheck.valid) return sizeCheck;
+
+  return { valid: true };
+};

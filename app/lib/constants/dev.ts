@@ -17,4 +17,3 @@ export const DEV_DEFAULTS = {
   DIFF_MODE: 'lines' as DiffMode,
   CRON_EXPRESSION: '0 0 * * *',
 } as const;
-

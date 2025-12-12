@@ -1,5 +1,7 @@
 export type ImageDimensions = { width: number; height: number };
 
+export type ResultState = 'idle' | 'processing' | 'done' | 'error';
+
 export type TargetFormat = 'image/png' | 'image/jpeg' | 'image/webp' | 'image/avif';
 
 export type PdfLikeImageFormat = 'png' | 'jpeg' | 'webp';
@@ -17,7 +19,6 @@ export type IconPlatform = 'favicon' | 'android-icon' | 'apple-icon' | 'ms-icon'
 
 export type IconPreview = { size: number; dataUrl: string };
 
-// Aspect Ratio types (merged from aspectRatio.ts)
 export type RatioOption = {
   id: string;
   label: string;

@@ -1,19 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { renderPdfPreview, renderPdfPage, getPdfPageCount } from '@/app/lib/tools';
-import { LoadedPdf } from '@/app/lib/types';
-
-export interface PdfPreviewResult {
-  canvasRef: React.RefObject<HTMLCanvasElement | null>;
-  currentPage: number;
-  totalPages: number;
-  setCurrentPage: (page: number) => void;
-  nextPage: () => void;
-  prevPage: () => void;
-  reset: () => void;
-  canGoNext: boolean;
-  canGoPrev: boolean;
-  renderPreview: () => Promise<void>;
-}
+import { LoadedPdf, PdfPreviewResult } from '@/app/lib/types';
 
 export function usePdfPreview(pdf: LoadedPdf | null): PdfPreviewResult {
   const canvasRef = useRef<HTMLCanvasElement>(null);

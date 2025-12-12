@@ -67,20 +67,19 @@ export interface MultiFileProcessingState extends ProcessingState {
   files: MediaFileItem[];
 }
 
-// Quality types
-export type QualityLevel = 'low' | 'medium' | 'high';
-
-// Repair operation types
-export type RepairOperation = 'repair' | 'compress_low' | 'compress_medium' | 'compress_high' | 'optimize';
-
-export interface RepairOption {
-  label: string;
-  description: string;
-}
+export type RepairOperation = 'original' | 'repair' | 'compress_low' | 'compress_medium' | 'compress_high' | 'optimize';
 
 // Download handler type
 export interface DownloadOptions {
   fileName: string;
   dataUrl?: string;
   callback?: () => void;
+}
+
+// Processed segment type
+export interface ProcessedSegment {
+  name: string;
+  blob: Blob;
+  url: string;
+  type: 'video' | 'audio' | null;
 }

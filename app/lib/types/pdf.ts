@@ -5,4 +5,13 @@ export type LoadedPdf = {
   buffer: ArrayBuffer;
 };
 
+export interface ImageFile {
+  file: File;
+  name: string;
+  buffer: ArrayBuffer;
+  width: number;
+  height: number;
+  blob: Blob;
+}
+
 export type PdfImageFormat = 'png' | 'jpeg' | 'webp';

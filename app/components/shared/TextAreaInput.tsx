@@ -1,5 +1,3 @@
-'use client';
-
 import { type FC } from 'react';
 import { cn } from '@/app/lib/utils';
 import { TextAreaInputProps } from '@/app/lib/types';

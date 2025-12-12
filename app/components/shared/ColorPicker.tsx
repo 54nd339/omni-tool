@@ -1,13 +1,8 @@
 'use client';
 
-import { FC, InputHTMLAttributes } from 'react';
+import { FC } from 'react';
 import { cn } from '@/app/lib/utils';
-
-interface ColorPickerProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'type'> {
-  label?: string;
-  helperText?: string;
-  error?: string;
-}
+import { ColorPickerProps } from '@/app/lib/types';
 
 export const ColorPicker: FC<ColorPickerProps> = ({
   label,
@@ -39,4 +34,3 @@ export const ColorPicker: FC<ColorPickerProps> = ({
     </div>
   );
 };
-

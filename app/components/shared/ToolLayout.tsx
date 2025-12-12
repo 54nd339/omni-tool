@@ -1,5 +1,3 @@
-'use client';
-
 import { type FC } from 'react';
 import { usePathname } from 'next/navigation';
 import { ToolLayoutProps } from '@/app/lib/types';
@@ -9,7 +7,7 @@ export const ToolLayout: FC<ToolLayoutProps> = ({ icon: Icon, title, description
   // Automatically use pathname if path is not provided
   const pathname = usePathname();
   const resolvedPath = path || pathname;
-  
+
   // Use centralized config if path is available, otherwise use props
   const config = resolvedPath ? PAGE_CONFIGS[resolvedPath] : null;
   const finalIcon = Icon || config?.icon;

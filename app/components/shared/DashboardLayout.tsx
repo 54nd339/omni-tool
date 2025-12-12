@@ -1,21 +1,5 @@
-'use client';
-
 import { useRouter } from 'next/navigation';
-import { type LucideIcon } from 'lucide-react';
-import { CategoryTool } from '@/app/lib/constants';
-
-interface DashboardLayoutProps {
-  icon: LucideIcon;
-  title: string;
-  description: string;
-  tools: CategoryTool[];
-  colorTheme: {
-    iconBg: string;
-    iconColor: string;
-    hoverBorder: string;
-    hoverText: string;
-  };
-}
+import { DashboardLayoutProps } from '@/app/lib/types';
 
 export function DashboardLayout({ icon: Icon, title, description, tools, colorTheme }: DashboardLayoutProps) {
   const router = useRouter();
@@ -31,7 +15,6 @@ export function DashboardLayout({ icon: Icon, title, description, tools, colorTh
           <p className="text-slate-600 dark:text-slate-400">{description}</p>
         </div>
       </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {tools.map((tool) => (
           <button
@@ -54,4 +37,3 @@ export function DashboardLayout({ icon: Icon, title, description, tools, colorTh
     </div>
   );
 }
-

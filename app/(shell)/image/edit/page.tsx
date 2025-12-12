@@ -1,10 +1,7 @@
-import { Metadata } from 'next';
 import EditImageClient from './page.client';
+import { getRouteMetadata } from '@/app/lib/constants';
 
-export const metadata: Metadata = {
-  title: 'Image Editor - Resize, Compress & Convert',
-  description: 'Resize, compress, and convert images between formats. Adjust quality, dimensions, and apply grayscale effects.',
-};
+export const metadata = getRouteMetadata('/image/create-pdf');
 
 export default function Page() {
   return <EditImageClient />;

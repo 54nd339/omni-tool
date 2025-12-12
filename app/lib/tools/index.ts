@@ -3,3 +3,4 @@ export * from './crypto';
 export * from './dev';
 export * from './pdf';
 export * from './pdf.client';
+export * from './ffmpeg.client';
