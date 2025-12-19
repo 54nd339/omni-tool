@@ -132,7 +132,7 @@ export function useFileUpload<T = File>(options: FileUploadOptions<T> = {}): Fil
         setError(formatErrorMessage(err, 'Failed to process files'));
       }
     },
-    [maxFiles, validateFile, onFileSelected, onFilesSelected]
+    [maxFiles, validateFile, transformFile, onFileSelected, onFilesSelected]
   );
 
   const clearError = useCallback(() => {

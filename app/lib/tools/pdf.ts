@@ -25,6 +25,19 @@ export const mergePdfs = async (pdfs: LoadedPdf[]): Promise<Blob> => {
   return new Blob([new Uint8Array(bytes)], { type: 'application/pdf' });
 };
 
+export const mergePdfBlobs = async (blobs: Blob[]): Promise<Blob> => {
+  const merged = await PDFDocument.create();
+  for (const blob of blobs) {
+    const buffer = await blob.arrayBuffer();
+    const bufferCopy = buffer.slice(0);
+    const src = await PDFDocument.load(bufferCopy);
+    const pages = await merged.copyPages(src, src.getPageIndices());
+    pages.forEach((p) => merged.addPage(p));
+  }
+  const bytes = await merged.save();
+  return new Blob([new Uint8Array(bytes)], { type: 'application/pdf' });
+};
+
 export const splitPdfPages = async (pdf: LoadedPdf): Promise<Blob[]> => {
   // Create a copy of the buffer to avoid "detached ArrayBuffer" errors
   const bufferCopy = pdf.buffer.slice(0);

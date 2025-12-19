@@ -24,7 +24,7 @@ export default function ShellLayout({ children }: { children: React.ReactNode })
   }, [pathname]);
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans transition-colors duration-300 flex overflow-hidden">
+    <div className="h-screen max-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans transition-colors duration-300 flex overflow-hidden">
       <Sidebar isOpen={sidebarOpen} toggle={toggleSidebar} />
 
       <div className="flex-1 flex flex-col h-screen overflow-hidden relative">

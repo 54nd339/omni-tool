@@ -69,3 +69,13 @@ export const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
 export const TIME_FORMAT = 'MM:SS' as const;
 export const DEFAULT_SEGMENT_DURATION = '00:30' as const;
 export const DEFAULT_SEGMENT_START = '00:00' as const;
+
+// Media file upload constants
+export const MEDIA_FILE_ACCEPT = 'audio/*,video/*' as const;
+export const MEDIA_UPLOAD_LABEL = 'Upload Audio/Video' as const;
+
+// Default media processing configuration
+export const DEFAULT_MEDIA_PROCESSING_CONFIG = {
+  useRealProgress: true,
+  resetDelay: PROCESSING_CONFIG.RESET_DELAY,
+} as const;

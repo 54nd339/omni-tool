@@ -42,4 +42,7 @@ next-env.d.ts
 
 # Auto-copied public files
 /public/ffmpeg/*
-/public/pdf.worker.min.mjs
+pdf.worker.min.mjs
+sw.js
+swe-*.js
+workbox-*.js

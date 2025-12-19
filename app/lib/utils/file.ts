@@ -54,6 +54,16 @@ export const formatErrorMessage = (error: unknown, defaultMessage: string = 'An 
 };
 
 /**
+ * Combine multiple error strings into a single error message
+ * Filters out empty/undefined values and joins with semicolon
+ * @param errors - Array of error strings or undefined values
+ * @returns Combined error string or empty string if no errors
+ */
+export const combineErrors = (...errors: (string | undefined)[]): string => {
+  return errors.filter(Boolean).join('; ') || '';
+};
+
+/**
  * Validate image file
  * @param file - File to validate
  * @returns Validation result with valid flag and optional error message

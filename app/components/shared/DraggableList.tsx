@@ -11,6 +11,7 @@ export const DraggableList = <T,>({
   title,
   renderMetadata,
   getItemKey = (_, i) => i,
+  renderAction,
 }: DraggableListProps<T>) => {
   const [draggedItem, setDraggedItem] = useState<number | null>(null);
   const [dragOverItem, setDragOverItem] = useState<number | null>(null);
@@ -75,6 +76,11 @@ export const DraggableList = <T,>({
             <div className="flex-1 min-w-0">
               {renderMetadata(item)}
             </div>
+            {renderAction && (
+              <div className="flex-shrink-0">
+                {renderAction(item, i)}
+              </div>
+            )}
             <Button
               onClick={() => onRemove(i)}
               variant="ghost"

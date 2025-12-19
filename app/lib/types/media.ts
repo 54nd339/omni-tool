@@ -45,6 +45,27 @@ export interface SplitResult {
   totalSize: string;
 }
 
+// Media processing result types (with blob data)
+export type ConvertMediaResult = {
+  fileName: string;
+  size: string;
+  blob: Blob;
+  details?: string;
+  operationApplied?: boolean;
+};
+
+export type MergeMediaResult = {
+  fileName: string;
+  size: string;
+  blob: Blob;
+};
+
+export type SplitMediaResult = {
+  count: number;
+  totalSize: string;
+  zipBlob: Blob;
+};
+
 export interface RepairResult {
   fileName: string;
   originalSize: string;

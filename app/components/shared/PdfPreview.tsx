@@ -9,12 +9,14 @@ export const PdfPreview: FC<PdfPreviewProps> = ({
   currentPage,
   onPageChange,
   isLoaded,
-  hasSource = false,
+  hasSource,
   label = 'Preview',
 }) => {
+  const sourceAvailable = hasSource ?? isLoaded;
+
   return (
     <ControlPanel title={label}>
-      {(!hasSource) ? (
+      {!sourceAvailable ? (
         <div className="bg-slate-100 dark:bg-slate-800 rounded p-12 text-center">
           <p className="text-sm text-slate-500 dark:text-slate-400">PDF preview will appear here</p>
         </div>

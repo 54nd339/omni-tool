@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { renderPdfPreview, renderPdfPage, getPdfPageCount } from '@/app/lib/tools';
 import { LoadedPdf, PdfPreviewResult } from '@/app/lib/types';
 
@@ -55,6 +55,9 @@ export function usePdfPreview(pdf: LoadedPdf | null): PdfPreviewResult {
     }
   }, [pdf, currentPage, renderPreview]);
 
+  const canGoNext = useMemo(() => currentPage < totalPages, [currentPage, totalPages]);
+  const canGoPrev = useMemo(() => currentPage > 1, [currentPage]);
+
   return {
     canvasRef,
     currentPage,
@@ -63,8 +66,8 @@ export function usePdfPreview(pdf: LoadedPdf | null): PdfPreviewResult {
     nextPage,
     prevPage,
     reset,
-    canGoNext: currentPage < totalPages,
-    canGoPrev: currentPage > 1,
+    canGoNext,
+    canGoPrev,
     renderPreview,
   };
 }

@@ -3,14 +3,16 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "copy:public": "cpy \"node_modules/@ffmpeg/core/dist/umd/*\" public/ffmpeg --flat && cpy \"node_modules/pdfjs-dist/build/pdf.worker.min.mjs\" public --flat",    "predev": "bun run copy:public",
-    "dev": "next dev",
+    "copy:public": "cpy \"node_modules/@ffmpeg/core/dist/umd/*\" public/ffmpeg --flat && cpy \"node_modules/pdfjs-dist/build/pdf.worker.min.mjs\" public --flat",
+    "predev": "bun run copy:public",
+    "dev": "next dev --turbo",
     "prebuild": "bun run copy:public",
-    "build": "next build",
+    "build": "next build --webpack",
     "start": "bunx serve@latest out",
     "lint": "eslint"
   },
   "dependencies": {
+    "@ducanh2912/next-pwa": "^10.2.9",
     "@excalidraw/excalidraw": "^0.18.0",
     "@ffmpeg/core": "^0.12.10",
     "@ffmpeg/ffmpeg": "^0.12.15",
