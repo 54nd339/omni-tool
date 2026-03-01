@@ -6,6 +6,18 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '2.1.0',
+    date: '2026-02-21',
+    items: [
+      '17 Dev Utils: JSON/YAML/XML/CSV with Monaco editor, Diff Checker (Monaco diff, inline/side-by-side)',
+      'API Tester with collections, env vars, GraphQL, WebSocket, cURL import, code gen, response history',
+      'Code Playground (JS/TS/Python), Database Playground (SQLite) with query history',
+      'Diagram Generator (Mermaid), Data Visualization (recharts), Markdown Editor with PDF export',
+      'Regex Tester with pattern library, Cron Builder, Code Formatter, Text Case Converter',
+      'Dev Misc: Byte Counter, Chmod Calculator, OG Preview, URL Parser, Fake Data Generator',
+    ],
+  },
+  {
     version: '2.0.0',
     date: '2026-02-21',
     items: [

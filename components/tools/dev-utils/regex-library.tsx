@@ -1,0 +1,262 @@
+'use client';
+
+import { useMemo, useState } from 'react';
+import { Input } from '@/components/ui/input';
+
+interface RegexEntry {
+  name: string;
+  category: string;
+  pattern: string;
+  flags: string;
+  description: string;
+  example: string;
+}
+
+const REGEX_PATTERNS: RegexEntry[] = [
+  // Validation
+  {
+    name: 'Email',
+    category: 'Validation',
+    pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$',
+    flags: 'i',
+    description: 'RFC 5322 simplified email address',
+    example: 'user@example.com',
+  },
+  {
+    name: 'URL',
+    category: 'Validation',
+    pattern: '^https?:\\/\\/[^\\s]+$',
+    flags: 'i',
+    description: 'HTTP or HTTPS URL',
+    example: 'https://example.com/path',
+  },
+  {
+    name: 'IPv4 Address',
+    category: 'Validation',
+    pattern: '^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$',
+    flags: '',
+    description: 'Valid IPv4 address (0.0.0.0–255.255.255.255)',
+    example: '192.168.1.1',
+  },
+  {
+    name: 'IPv6 Address',
+    category: 'Validation',
+    pattern: '^(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$',
+    flags: '',
+    description: 'Full IPv6 address (simplified format)',
+    example: '2001:0db8:85a3:0000:0000:8a2e:0370:7334',
+  },
+  {
+    name: 'Phone',
+    category: 'Validation',
+    pattern: '^\\+?[1-9]\\d{0,3}[-.\\s]?(?:\\(\\d{1,4}\\))?[-.\\s]?\\d{1,4}[-.\\s]?\\d{1,9}$',
+    flags: '',
+    description: 'International phone format',
+    example: '+1 (555) 123-4567',
+  },
+  {
+    name: 'Credit Card Number',
+    category: 'Validation',
+    pattern: '^(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|3[47][0-9]{13})$',
+    flags: '',
+    description: 'Visa, Mastercard, or Amex (digits only)',
+    example: '4111111111111111',
+  },
+  {
+    name: 'US ZIP Code',
+    category: 'Validation',
+    pattern: '^\\d{5}(-\\d{4})?$',
+    flags: '',
+    description: '5-digit or 9-digit (ZIP+4) format',
+    example: '12345 or 12345-6789',
+  },
+  // Parsing
+  {
+    name: 'ISO Date',
+    category: 'Parsing',
+    pattern: '\\d{4}-\\d{2}-\\d{2}',
+    flags: 'g',
+    description: 'ISO 8601 date (YYYY-MM-DD)',
+    example: '2025-02-21',
+  },
+  {
+    name: 'US Date',
+    category: 'Parsing',
+    pattern: '(?:0?[1-9]|1[0-2])\\/(?:0?[1-9]|[12]\\d|3[01])\\/\\d{4}',
+    flags: 'g',
+    description: 'US date format (MM/DD/YYYY)',
+    example: '02/21/2025',
+  },
+  {
+    name: 'Time',
+    category: 'Parsing',
+    pattern: '(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d)?',
+    flags: 'g',
+    description: '24-hour time (HH:MM or HH:MM:SS)',
+    example: '14:30:45',
+  },
+  {
+    name: 'Hex Color',
+    category: 'Parsing',
+    pattern: '#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})',
+    flags: 'g',
+    description: 'Hex color (#RGB or #RRGGBB)',
+    example: '#ff5733 or #fff',
+  },
+  {
+    name: 'HTML Tag',
+    category: 'Parsing',
+    pattern: '</?[a-zA-Z][^>]*>',
+    flags: 'g',
+    description: 'Opening or closing HTML tag',
+    example: '<div> or </span>',
+  },
+  {
+    name: 'Markdown Link',
+    category: 'Parsing',
+    pattern: '\\[([^\\]]+)\\]\\(([^)]+)\\)',
+    flags: 'g',
+    description: 'Markdown link [text](url)',
+    example: '[Click](https://example.com)',
+  },
+  // Developer
+  {
+    name: 'Semver Version',
+    category: 'Developer',
+    pattern: '\\d+\\.\\d+\\.\\d+(?:-[a-zA-Z0-9.]+)?(?:\\+[a-zA-Z0-9.]+)?',
+    flags: 'g',
+    description: 'Semantic version (e.g. 1.2.3-beta.1)',
+    example: '1.2.3 or 2.0.0-beta.1',
+  },
+  {
+    name: 'UUID v4',
+    category: 'Developer',
+    pattern: '[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}',
+    flags: 'gi',
+    description: 'UUID version 4',
+    example: '550e8400-e29b-41d4-a716-446655440000',
+  },
+  {
+    name: 'JWT Token',
+    category: 'Developer',
+    pattern: 'eyJ[A-Za-z0-9_-]+\\.eyJ[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+',
+    flags: 'g',
+    description: 'JWT (header.payload.signature)',
+    example: 'eyJhbGciOiJIUzI1NiIs...',
+  },
+  {
+    name: 'ES Module Import',
+    category: 'Developer',
+    pattern: "import\\s+(?:.*?\\s+from\\s+)?['\"]([^'\"]+)['\"]",
+    flags: 'g',
+    description: 'ES module import statement',
+    example: "import { foo } from './bar'",
+  },
+  {
+    name: 'CSS Class Selector',
+    category: 'Developer',
+    pattern: '\\.-?[a-zA-Z_][\\w-]*',
+    flags: 'g',
+    description: 'CSS class selector',
+    example: '.btn-primary or .-mt-4',
+  },
+  {
+    name: 'JSON Property',
+    category: 'Developer',
+    pattern: '"([^"\\\\]*(?:\\\\.[^"\\\\]*)*)"\\s*:',
+    flags: 'g',
+    description: 'JSON key-value property name',
+    example: '"firstName": ',
+  },
+  {
+    name: 'SQL Injection Pattern',
+    category: 'Developer',
+    pattern: "(?:'|(--)|\\b(SELECT|INSERT|UPDATE|DELETE|DROP|UNION)\\b)",
+    flags: 'gi',
+    description: 'Common SQL injection indicators',
+    example: "'; DROP TABLE--",
+  },
+  {
+    name: 'Base64 String',
+    category: 'Developer',
+    pattern: '[A-Za-z0-9+/]{4,}(?:=[=]{0,2})?',
+    flags: 'g',
+    description: 'Base64 encoded string',
+    example: 'SGVsbG8gV29ybGQ=',
+  },
+  {
+    name: 'MAC Address',
+    category: 'Developer',
+    pattern: '(?:[0-9A-Fa-f]{2}[:-]){5}[0-9A-Fa-f]{2}',
+    flags: 'g',
+    description: 'MAC address (colon or hyphen separated)',
+    example: '00:1A:2B:3C:4D:5E',
+  },
+];
+
+export function RegexLibrary({
+  onSelect,
+}: {
+  onSelect: (pattern: string, flags: string) => void;
+}) {
+  const [search, setSearch] = useState('');
+
+  const filteredByCategory = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    const filtered = q
+      ? REGEX_PATTERNS.filter(
+        (p) =>
+          p.name.toLowerCase().includes(q) ||
+          p.category.toLowerCase().includes(q) ||
+          p.description.toLowerCase().includes(q) ||
+          p.pattern.toLowerCase().includes(q) ||
+          p.example.toLowerCase().includes(q),
+      )
+      : REGEX_PATTERNS;
+    const byCategory = filtered.reduce<Record<string, RegexEntry[]>>((acc, p) => {
+      if (!acc[p.category]) acc[p.category] = [];
+      acc[p.category].push(p);
+      return acc;
+    }, {});
+    return byCategory;
+  }, [search]);
+
+  return (
+    <div className="space-y-4">
+      <Input
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        placeholder="Search patterns by name, category, description..."
+        className="font-mono"
+      />
+      <div className="space-y-6">
+        {Object.entries(filteredByCategory).map(([category, patterns]) => (
+          <div key={category}>
+            <h3 className="mb-2 text-sm font-semibold text-foreground">{category}</h3>
+            <div className="space-y-1">
+              {patterns.map((entry) => (
+                <button
+                  key={`${entry.category}-${entry.name}`}
+                  type="button"
+                  onClick={() => onSelect(entry.pattern, entry.flags)}
+                  className="group flex w-full flex-col gap-1 rounded-md border border-border bg-card px-4 py-3 text-left transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  <div className="flex w-full items-center justify-between gap-2">
+                    <span className="font-semibold text-foreground group-hover:text-accent-foreground">{entry.name}</span>
+                    <code className="shrink-0 truncate rounded bg-muted px-1.5 py-0.5 text-xs text-muted-foreground group-hover:bg-background group-hover:text-foreground transition-colors">
+                      /{entry.pattern}/{entry.flags || '(none)'}
+                    </code>
+                  </div>
+                  <p className="text-sm text-muted-foreground group-hover:text-accent-foreground/80">{entry.description}</p>
+                  <p className="font-mono text-xs text-muted-foreground group-hover:text-accent-foreground/60 transition-colors">
+                    Example: {entry.example}
+                  </p>
+                </button>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
