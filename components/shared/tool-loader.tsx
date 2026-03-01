@@ -40,16 +40,40 @@ const TOOLS = {
     () => import('@/components/tools/dev-utils/diff-checker-tool').then((m) => m.DiffCheckerTool),
     { ssr: false, loading: () => <ToolSkeleton /> },
   ),
+  'image-placeholder': dynamic(
+    () => import('@/components/tools/generators/image-placeholder-tool').then((m) => m.ImagePlaceholderTool),
+    { ssr: false, loading: () => <ToolSkeleton /> },
+  ),
+  'hash-generator': dynamic(
+    () => import('@/components/tools/crypto-suite/hash-generator-tool').then((m) => m.HashGeneratorTool),
+    { ssr: false, loading: () => <ToolSkeleton /> },
+  ),
   'json-yaml-xml': dynamic(
     () => import('@/components/tools/dev-utils/json-yaml-xml-tool').then((m) => m.JsonYamlXmlTool),
+    { ssr: false, loading: () => <ToolSkeleton /> },
+  ),
+  jwt: dynamic(
+    () => import('@/components/tools/crypto-suite/jwt-tool').then((m) => m.JwtTool),
     { ssr: false, loading: () => <ToolSkeleton /> },
   ),
   'markdown-preview': dynamic(
     () => import('@/components/tools/dev-utils/markdown-preview-tool').then((m) => m.MarkdownPreviewTool),
     { ssr: false, loading: () => <ToolSkeleton /> },
   ),
+  'password-generator': dynamic(
+    () => import('@/components/tools/generators/password-generator-tool').then((m) => m.PasswordGeneratorTool),
+    { ssr: false, loading: () => <ToolSkeleton /> },
+  ),
+  'qr-generator': dynamic(
+    () => import('@/components/tools/generators/qr-generator-tool').then((m) => m.QrGeneratorTool),
+    { ssr: false, loading: () => <ToolSkeleton /> },
+  ),
   'regex-tester': dynamic(
     () => import('@/components/tools/dev-utils/regex-tester-tool').then((m) => m.RegexTesterTool),
+    { ssr: false, loading: () => <ToolSkeleton /> },
+  ),
+  'ssh-keygen': dynamic(
+    () => import('@/components/tools/crypto-suite/ssh-keygen-tool').then((m) => m.SshKeygenTool),
     { ssr: false, loading: () => <ToolSkeleton /> },
   ),
   'text-case': dynamic(
@@ -62,6 +86,22 @@ const TOOLS = {
   ),
   timestamp: dynamic(
     () => import('@/components/tools/dev-utils/timestamp-tool').then((m) => m.TimestampTool),
+    { ssr: false, loading: () => <ToolSkeleton /> },
+  ),
+  'uuid-generator': dynamic(
+    () => import('@/components/tools/generators/uuid-generator-tool').then((m) => m.UuidGeneratorTool),
+    { ssr: false, loading: () => <ToolSkeleton /> },
+  ),
+  'ascii-art': dynamic(
+    () => import('@/components/tools/generators/ascii-art-tool').then((m) => m.AsciiArtTool),
+    { ssr: false, loading: () => <ToolSkeleton /> },
+  ),
+  'color-picker': dynamic(
+    () => import('@/components/tools/generators/color-picker-tool').then((m) => m.ColorGradientTool),
+    { ssr: false, loading: () => <ToolSkeleton /> },
+  ),
+  cipher: dynamic(
+    () => import('@/components/tools/crypto-suite/cipher-tool').then((m) => m.CipherTool),
     { ssr: false, loading: () => <ToolSkeleton /> },
   ),
 } as const;

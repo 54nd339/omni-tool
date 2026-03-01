@@ -6,6 +6,14 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '2.2.0',
+    date: '2026-02-21',
+    items: [
+      'Crypto Suite: Hash Generator (Web Crypto API), Cipher Encode/Decode, JWT Encode/Decode with exp/iat preview, SSH Key Generator',
+      'Generators: QR Code, Color Picker with palette extraction, UUID/ULID, Password, CSS Gradient, ASCII Art, Image Placeholder',
+    ],
+  },
+  {
     version: '2.1.0',
     date: '2026-02-21',
     items: [
