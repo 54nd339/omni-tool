@@ -6,6 +6,17 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '2.3.0',
+    date: '2026-02-21',
+    items: [
+      'Image Studio: Background Remover (AI/ONNX), Aspect Ratio Pad, Image Editor, Icon Generator, PDF from Images',
+      'Image Studio: SVG Optimizer, Image Metadata Viewer, OCR/Text Extraction, Color Palette from Image, Batch Processing',
+      'PDF Suite: Merge PDFs, Split PDF, PDF to Image — all client-side via pdf-lib and pdfjs-dist',
+      'Media Lab: Format Converter, Media Merge, Media Split — powered by FFmpeg WASM',
+      'Workspace: Whiteboard (Excalidraw) canvas for freeform visual collaboration',
+    ],
+  },
+  {
     version: '2.2.0',
     date: '2026-02-21',
     items: [

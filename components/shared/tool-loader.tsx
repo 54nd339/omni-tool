@@ -8,12 +8,40 @@ const TOOLS = {
     () => import('@/components/tools/dev-utils/api-tester-tool').then((m) => m.ApiTesterTool),
     { ssr: false, loading: () => <ToolSkeleton /> },
   ),
+  'ascii-art': dynamic(
+    () => import('@/components/tools/generators/ascii-art-tool').then((m) => m.AsciiArtTool),
+    { ssr: false, loading: () => <ToolSkeleton /> },
+  ),
+  'batch-image': dynamic(
+    () => import('@/components/tools/image-studio/batch-image-tool').then((m) => m.BatchImageTool),
+    { ssr: false, loading: () => <ToolSkeleton /> },
+  ),
+  'aspect-ratio-pad': dynamic(
+    () => import('@/components/tools/image-studio/aspect-ratio-pad-tool').then((m) => m.AspectRatioPadTool),
+    { ssr: false, loading: () => <ToolSkeleton /> },
+  ),
+  'background-remover': dynamic(
+    () => import('@/components/tools/image-studio/background-remover-tool').then((m) => m.BackgroundRemoverTool),
+    { ssr: false, loading: () => <ToolSkeleton /> },
+  ),
+  cipher: dynamic(
+    () => import('@/components/tools/crypto-suite/cipher-tool').then((m) => m.CipherTool),
+    { ssr: false, loading: () => <ToolSkeleton /> },
+  ),
   'code-formatter': dynamic(
     () => import('@/components/tools/dev-utils/code-formatter-tool').then((m) => m.CodeFormatterTool),
     { ssr: false, loading: () => <ToolSkeleton /> },
   ),
   'code-playground': dynamic(
     () => import('@/components/tools/dev-utils/code-playground-tool').then((m) => m.CodePlaygroundTool),
+    { ssr: false, loading: () => <ToolSkeleton /> },
+  ),
+  'color-palette': dynamic(
+    () => import('@/components/tools/image-studio/color-palette-tool').then((m) => m.ColorPaletteTool),
+    { ssr: false, loading: () => <ToolSkeleton /> },
+  ),
+  'color-picker': dynamic(
+    () => import('@/components/tools/generators/color-picker-tool').then((m) => m.ColorGradientTool),
     { ssr: false, loading: () => <ToolSkeleton /> },
   ),
   'cron-builder': dynamic(
@@ -48,6 +76,18 @@ const TOOLS = {
     () => import('@/components/tools/crypto-suite/hash-generator-tool').then((m) => m.HashGeneratorTool),
     { ssr: false, loading: () => <ToolSkeleton /> },
   ),
+  'icon-generator': dynamic(
+    () => import('@/components/tools/image-studio/icon-generator-tool').then((m) => m.IconGeneratorTool),
+    { ssr: false, loading: () => <ToolSkeleton /> },
+  ),
+  'image-editor': dynamic(
+    () => import('@/components/tools/image-studio/image-editor-tool').then((m) => m.ImageEditorTool),
+    { ssr: false, loading: () => <ToolSkeleton /> },
+  ),
+  'image-metadata': dynamic(
+    () => import('@/components/tools/image-studio/image-metadata-tool').then((m) => m.ImageMetadataTool),
+    { ssr: false, loading: () => <ToolSkeleton /> },
+  ),
   'json-yaml-xml': dynamic(
     () => import('@/components/tools/dev-utils/json-yaml-xml-tool').then((m) => m.JsonYamlXmlTool),
     { ssr: false, loading: () => <ToolSkeleton /> },
@@ -60,8 +100,36 @@ const TOOLS = {
     () => import('@/components/tools/dev-utils/markdown-preview-tool').then((m) => m.MarkdownPreviewTool),
     { ssr: false, loading: () => <ToolSkeleton /> },
   ),
+  'media-convert': dynamic(
+    () => import('@/components/tools/media-lab/format-converter-tool').then((m) => m.FormatConverterTool),
+    { ssr: false, loading: () => <ToolSkeleton /> },
+  ),
+  'media-merge': dynamic(
+    () => import('@/components/tools/media-lab/media-merge-tool').then((m) => m.MediaMergeTool),
+    { ssr: false, loading: () => <ToolSkeleton /> },
+  ),
+  'media-split': dynamic(
+    () => import('@/components/tools/media-lab/media-split-tool').then((m) => m.MediaSplitTool),
+    { ssr: false, loading: () => <ToolSkeleton /> },
+  ),
+  ocr: dynamic(
+    () => import('@/components/tools/image-studio/ocr-tool').then((m) => m.OcrTool),
+    { ssr: false, loading: () => <ToolSkeleton /> },
+  ),
   'password-generator': dynamic(
     () => import('@/components/tools/generators/password-generator-tool').then((m) => m.PasswordGeneratorTool),
+    { ssr: false, loading: () => <ToolSkeleton /> },
+  ),
+  'pdf-from-images': dynamic(
+    () => import('@/components/tools/image-studio/pdf-from-images-tool').then((m) => m.PdfFromImagesTool),
+    { ssr: false, loading: () => <ToolSkeleton /> },
+  ),
+  'pdf-merge': dynamic(
+    () => import('@/components/tools/pdf-suite/merge-pdfs-tool').then((m) => m.MergePdfsTool),
+    { ssr: false, loading: () => <ToolSkeleton /> },
+  ),
+  'pdf-split': dynamic(
+    () => import('@/components/tools/pdf-suite/split-pdf-tool').then((m) => m.SplitPdfTool),
     { ssr: false, loading: () => <ToolSkeleton /> },
   ),
   'qr-generator': dynamic(
@@ -74,6 +142,10 @@ const TOOLS = {
   ),
   'ssh-keygen': dynamic(
     () => import('@/components/tools/crypto-suite/ssh-keygen-tool').then((m) => m.SshKeygenTool),
+    { ssr: false, loading: () => <ToolSkeleton /> },
+  ),
+  'svg-optimizer': dynamic(
+    () => import('@/components/tools/image-studio/svg-optimizer-tool').then((m) => m.SvgOptimizerTool),
     { ssr: false, loading: () => <ToolSkeleton /> },
   ),
   'text-case': dynamic(
@@ -92,16 +164,8 @@ const TOOLS = {
     () => import('@/components/tools/generators/uuid-generator-tool').then((m) => m.UuidGeneratorTool),
     { ssr: false, loading: () => <ToolSkeleton /> },
   ),
-  'ascii-art': dynamic(
-    () => import('@/components/tools/generators/ascii-art-tool').then((m) => m.AsciiArtTool),
-    { ssr: false, loading: () => <ToolSkeleton /> },
-  ),
-  'color-picker': dynamic(
-    () => import('@/components/tools/generators/color-picker-tool').then((m) => m.ColorGradientTool),
-    { ssr: false, loading: () => <ToolSkeleton /> },
-  ),
-  cipher: dynamic(
-    () => import('@/components/tools/crypto-suite/cipher-tool').then((m) => m.CipherTool),
+  whiteboard: dynamic(
+    () => import('@/components/tools/whiteboard/whiteboard-tool').then((m) => m.WhiteboardTool),
     { ssr: false, loading: () => <ToolSkeleton /> },
   ),
 } as const;
