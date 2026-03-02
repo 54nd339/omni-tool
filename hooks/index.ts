@@ -1,6 +1,6 @@
-export { useClipboardPaste, useSmartPaste } from './use-clipboard-paste';
 export { createWorkerHook } from './create-worker-hook';
 export { useBgRemoval } from './use-bg-removal';
+export { useClipboardPaste, useSmartPaste } from './use-clipboard-paste';
 export { useDownload } from './use-download';
 export { useFFmpeg } from './use-ffmpeg';
 export { useInstallPrompt } from './use-install-prompt';
