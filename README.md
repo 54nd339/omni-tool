@@ -62,6 +62,18 @@ docker run -d -p 3000:80 --name omni-tool omni-tool
 
 Nginx serves the static export from `out/` using `nginx.conf`.
 
+### Published Images
+
+- `54nd33p/omnitool:latest` → `master` (default toolset)
+- `54nd33p/omnitool:extras` → `extras` branch (includes Code Playground, Database Playground, Whiteboard, ASCII Art)
+
+To run extras:
+
+```bash
+docker pull 54nd33p/omnitool:extras
+docker run -d -p 3000:80 --name omni-tool-extras 54nd33p/omnitool:extras
+```
+
 ## Cross-Origin Isolation (Required)
 
 FFmpeg/WebAssembly workflows rely on `SharedArrayBuffer`, so responses must include:
@@ -82,7 +94,7 @@ If deploying to other platforms, ensure these headers are configured there as we
 
 Docker image workflows are defined in:
 
-- `.github/workflows/docker-merge.yml` (push to `main`)
+- `.github/workflows/docker-merge.yml` (push to `master` and `extras`)
 - `.github/workflows/docker-pull-request.yml` (pull requests from same repo)
 
 ## Repository Layout

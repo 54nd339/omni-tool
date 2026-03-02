@@ -8,7 +8,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: 'OmniTool',
     short_name: 'OmniTool',
     description:
-      'Offline-first PWA toolbox — image studio, PDF suite, media lab, crypto, dev utils, and whiteboard.',
+      'Offline-first PWA toolbox — image studio, PDF suite, media lab, crypto, and dev utils.',
     start_url: '/',
     scope: '/',
     lang: 'en',
@@ -36,12 +36,12 @@ export default function manifest(): MetadataRoute.Manifest {
     ] as unknown as MetadataRoute.Manifest['screenshots'],
     icons: [
       {
-        src: '/icons/icon-192x192.png',
+        src: '/icons/favicon-192x192.png',
         sizes: '192x192',
         type: 'image/png',
       },
       {
-        src: '/icons/icon-512x512.png',
+        src: '/icons/favicon-512x512.png',
         sizes: '512x512',
         type: 'image/png',
       },

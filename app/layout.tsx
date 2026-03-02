@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     template: '%s | OmniTool',
   },
   description:
-    'Offline-first PWA toolbox — image studio, PDF suite, media lab, crypto, dev utils, and whiteboard. Runs entirely in your browser.',
+    'Offline-first PWA toolbox — image studio, PDF suite, media lab, crypto, and dev utils. Runs entirely in your browser.',
   metadataBase: new URL('https://tools.sandeepswain.dev'),
   icons: [
     { rel: 'icon', url: '/favicon.ico', sizes: '32x32' },

@@ -4,6 +4,7 @@ import { useCallback, useState } from 'react';
 import { Layers } from 'lucide-react';
 import { toast } from 'sonner';
 import { useClipboardPaste, useDownload, createWorkerHook } from '@/hooks';
+import * as Comlink from 'comlink';
 import { ShareButton } from '@/components/shared/share-button';
 import { EmptyState } from '@/components/shared/empty-state';
 import { FileDropzone } from '@/components/shared/file-dropzone';
@@ -90,13 +91,40 @@ export function IconGeneratorTool() {
     }
 
     try {
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.src = url;
+      await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = reject;
+      });
+
+      // Draw the image to an OffscreenCanvas to get a clean ImageBitmap
+      // SVGs need to be rasterized on the main thread first
+      const size = Math.max(img.width, img.height, 1024);
+      const canvas = new OffscreenCanvas(size, size);
+      const ctx = canvas.getContext('2d');
+      if (!ctx) throw new Error('Could not get 2D context');
+
+      // Preserve aspect ratio and center
+      const scale = Math.min(size / img.width, size / img.height);
+      const w = img.width * scale;
+      const h = img.height * scale;
+      const x = (size - w) / 2;
+      const y = (size - h) / 2;
+      ctx.drawImage(img, x, y, w, h);
+
+      const bitmap = canvas.transferToImageBitmap();
+      URL.revokeObjectURL(url);
+
       const zip = await run((api) =>
-        api.generateIcons({ platforms, sourceImage: file }),
+        api.generateIcons(Comlink.transfer({ platforms, sourceImageBitmap: bitmap }, [bitmap])),
       );
       setResultBlob(zip);
       download(zip, 'icons.zip');
       toast.success('Icons generated and downloaded');
-    } catch {
+    } catch (e) {
+      console.error('Icon generation error:', e);
       toast.error('Icon generation failed');
     }
   }, [file, selectedPlatforms, download, run]);

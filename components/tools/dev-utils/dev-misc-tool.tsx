@@ -1,24 +1,25 @@
 'use client';
 
-import { useState, lazy, Suspense } from 'react';
+import { useState, Suspense } from 'react';
+import dynamic from 'next/dynamic';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { ToolSkeleton } from '@/components/ui/skeleton';
 
-const ByteCounterTool = lazy(() =>
-  import('./byte-counter-tool').then((m) => ({ default: m.ByteCounterTool })),
-);
-const ChmodCalculatorTool = lazy(() =>
-  import('./chmod-calculator-tool').then((m) => ({ default: m.ChmodCalculatorTool })),
-);
-const OgPreviewTool = lazy(() =>
-  import('./og-preview-tool').then((m) => ({ default: m.OgPreviewTool })),
-);
-const FakeDataTool = lazy(() =>
-  import('./fake-data-tool').then((m) => ({ default: m.FakeDataTool })),
-);
-const UrlParserTool = lazy(() =>
-  import('./url-parser-tool').then((m) => ({ default: m.UrlParserTool })),
-);
+const ByteCounterTool = dynamic(() => import('./byte-counter-tool').then((m) => m.ByteCounterTool), {
+  ssr: false,
+});
+const ChmodCalculatorTool = dynamic(() => import('./chmod-calculator-tool').then((m) => m.ChmodCalculatorTool), {
+  ssr: false,
+});
+const OgPreviewTool = dynamic(() => import('./og-preview-tool').then((m) => m.OgPreviewTool), {
+  ssr: false,
+});
+const FakeDataTool = dynamic(() => import('./fake-data-tool').then((m) => m.FakeDataTool), {
+  ssr: false,
+});
+const UrlParserTool = dynamic(() => import('./url-parser-tool').then((m) => m.UrlParserTool), {
+  ssr: false,
+});
 
 const TABS = [
   { id: 'byte-counter', label: 'Byte Counter' },
@@ -50,13 +51,15 @@ export function DevMiscTool() {
         </ToggleGroup>
       </div>
 
-      <Suspense fallback={<ToolSkeleton />}>
-        {tab === 'byte-counter' && <ByteCounterTool />}
-        {tab === 'chmod' && <ChmodCalculatorTool />}
-        {tab === 'og-preview' && <OgPreviewTool />}
-        {tab === 'url-parser' && <UrlParserTool />}
-        {tab === 'fake-data' && <FakeDataTool />}
-      </Suspense>
+      <div className="min-h-[400px]">
+        <Suspense fallback={<ToolSkeleton />}>
+          {tab === 'byte-counter' && <ByteCounterTool />}
+          {tab === 'chmod' && <ChmodCalculatorTool />}
+          {tab === 'og-preview' && <OgPreviewTool />}
+          {tab === 'url-parser' && <UrlParserTool />}
+          {tab === 'fake-data' && <FakeDataTool />}
+        </Suspense>
+      </div>
     </div>
   );
 }

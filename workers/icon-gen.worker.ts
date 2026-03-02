@@ -3,7 +3,12 @@ import { generateIcons, type IconGenerationRequest } from '@/lib/image/icon-gene
 
 const api = {
   async generateIcons(request: IconGenerationRequest): Promise<Blob> {
-    return generateIcons(request);
+    try {
+      return await generateIcons(request);
+    } catch (e) {
+      console.error('Worker error in generateIcons:', e);
+      throw e;
+    }
   },
 };
 

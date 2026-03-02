@@ -2,14 +2,14 @@ import JSZip from 'jszip';
 
 export interface IconGenerationRequest {
   platforms: { platform: string; sizes: number[] }[];
-  sourceImage: Blob;
+  sourceImageBitmap: ImageBitmap;
 }
 
 export async function generateIcons(
   request: IconGenerationRequest,
 ): Promise<Blob> {
   const zip = new JSZip();
-  const img = await createImageBitmap(request.sourceImage);
+  const img = request.sourceImageBitmap;
 
   for (const { platform, sizes } of request.platforms) {
     const folder = zip.folder(platform);
