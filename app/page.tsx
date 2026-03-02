@@ -1,65 +1,203 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import { useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
+import { ChevronRight, Star, Clock } from 'lucide-react';
+import { TOOL_CATEGORIES, TOOLS } from '@/lib/constants/tools';
+import type { ToolCategory } from '@/types';
+import { ToolCard } from '@/components/layout/tool-card';
+import { FavoriteTools } from '@/components/layout/favorite-tools';
+import { RecentTools } from '@/components/layout/recent-tools';
+import { LazySection } from '@/components/layout/lazy-section';
+import { getIcon } from '@/lib/icon-map';
+import { pluralize } from '@/lib/utils';
+import { useSettingsStore } from '@/stores/settings-store';
+
+const toolsByCategory = TOOL_CATEGORIES.reduce(
+  (acc, cat) => {
+    acc[cat.id] = TOOLS.filter((t) => t.category === cat.id);
+    return acc;
+  },
+  {} as Record<ToolCategory, (typeof TOOLS)[number][]>,
+);
+
+const PREVIEW_COUNT = 3;
+
+export default function HomePage() {
+  const toolUsageCounts = useSettingsStore((s) => s.toolUsageCounts);
+  const hasFavorites = useSettingsStore((s) => s.favoriteTools.length > 0);
+  const hasRecents = useSettingsStore((s) => s.recentTools.length > 0);
+  const [expanded, setExpanded] = useState<Set<string>>(new Set());
+
+  const mostUsed = useMemo(() => {
+    const entries = Object.entries(toolUsageCounts).filter(([, c]) => c >= 3);
+    if (entries.length === 0) return [];
+    return entries
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 6)
+      .map(([id]) => TOOLS.find((t) => t.id === id))
+      .filter(Boolean) as (typeof TOOLS)[number][];
+  }, [toolUsageCounts]);
+
+  const prefetchPaths = useMemo(() => {
+    const entries = Object.entries(toolUsageCounts);
+    if (entries.length === 0) return [];
+    return entries
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 5)
+      .map(([id]) => TOOLS.find((t) => t.id === id)?.path)
+      .filter(Boolean) as string[];
+  }, [toolUsageCounts]);
+
+  useEffect(() => {
+    const links: HTMLLinkElement[] = [];
+    for (const path of prefetchPaths) {
+      const link = document.createElement('link');
+      link.rel = 'prefetch';
+      link.href = path;
+      document.head.appendChild(link);
+      links.push(link);
+    }
+    return () => links.forEach((l) => l.remove());
+  }, [prefetchPaths]);
+
+  let stagger = 0;
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="mx-auto max-w-4xl space-y-10">
+      <div
+        className="animate-stagger"
+        style={{ '--stagger': stagger++ } as React.CSSProperties}
+      >
+        <h1 className="text-2xl font-semibold tracking-tight">OmniTool</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Offline-first toolbox for images, PDFs, media, crypto, dev utils, and
+          more. Everything runs in your browser.
+        </p>
+      </div>
+
+      <div
+        className="animate-stagger"
+        style={{ '--stagger': stagger++ } as React.CSSProperties}
+      >
+        {hasFavorites ? (
+          <FavoriteTools />
+        ) : (
+          <section className="rounded-lg border border-dashed border-border p-4 text-center">
+            <Star className="mx-auto h-5 w-5 text-muted-foreground/40" aria-hidden />
+            <p className="mt-2 text-sm text-muted-foreground">
+              Star tools to pin them here for quick access
+            </p>
+          </section>
+        )}
+      </div>
+
+      <div
+        className="animate-stagger"
+        style={{ '--stagger': stagger++ } as React.CSSProperties}
+      >
+        {hasRecents ? (
+          <RecentTools />
+        ) : (
+          <section className="rounded-lg border border-dashed border-border p-4 text-center">
+            <Clock className="mx-auto h-5 w-5 text-muted-foreground/40" aria-hidden />
+            <p className="mt-2 text-sm text-muted-foreground">
+              Tools you use will appear here
+            </p>
+          </section>
+        )}
+      </div>
+
+      {mostUsed.length > 0 && (
+        <div
+          className="animate-stagger"
+          style={{ '--stagger': stagger++ } as React.CSSProperties}
+        >
+          <section>
+            <h2 className="mb-3 text-sm font-medium text-muted-foreground">
+              Most Used
+            </h2>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {mostUsed.map((tool) => (
+                <ToolCard
+                  key={tool.id}
+                  toolId={tool.id}
+                  name={tool.name}
+                  description={tool.description}
+                  href={tool.path}
+                  icon={tool.icon}
+                />
+              ))}
+            </div>
+          </section>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+      )}
+
+      {TOOL_CATEGORIES.map((cat, index) => {
+        const categoryTools = toolsByCategory[cat.id];
+        if (categoryTools.length === 0) return null;
+        const CatIcon = getIcon(cat.icon);
+        const isExpanded = expanded.has(cat.id);
+        const hasMore = categoryTools.length > PREVIEW_COUNT;
+        const visibleTools = isExpanded ? categoryTools : categoryTools.slice(0, PREVIEW_COUNT);
+        const content = (
+          <div
+            key={cat.id}
+            className="animate-stagger"
+            style={{ '--stagger': stagger++ } as React.CSSProperties}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+            <section>
+              <div className="mb-3 flex items-center gap-2">
+                {CatIcon && (
+                  <CatIcon className="h-4 w-4 text-muted-foreground" />
+                )}
+                <h2 className="text-sm font-medium text-muted-foreground">
+                  {cat.name}
+                </h2>
+                <span className="text-xs text-muted-foreground/60">
+                  {categoryTools.length} {pluralize(categoryTools.length, 'tool')}
+                </span>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {visibleTools.map((tool) => (
+                  <ToolCard
+                    key={tool.id}
+                    toolId={tool.id}
+                    name={tool.name}
+                    description={tool.description}
+                    href={tool.path}
+                    icon={tool.icon}
+                  />
+                ))}
+              </div>
+              {hasMore && !isExpanded && (
+                <button
+                  onClick={() => setExpanded((prev) => new Set(prev).add(cat.id))}
+                  className="mt-3 flex items-center gap-1 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  Show all {categoryTools.length} tools
+                  <ChevronRight className="h-3.5 w-3.5" />
+                </button>
+              )}
+              {hasMore && isExpanded && (
+                <Link
+                  href={cat.path}
+                  className="mt-3 flex items-center gap-1 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  View {cat.name}
+                  <ChevronRight className="h-3.5 w-3.5" />
+                </Link>
+              )}
+            </section>
+          </div>
+        );
+        if (index < 2) return content;
+        return (
+          <LazySection key={cat.id} skeletonCount={Math.min(categoryTools.length, PREVIEW_COUNT)}>
+            {content}
+          </LazySection>
+        );
+      })}
     </div>
   );
 }
