@@ -34,29 +34,14 @@ export function MyNewTool() {
 }
 ```
 
-### 2. Create the page route
+### 2. Use the existing dynamic route pattern
 
-Create `app/(tools)/<category>/<tool-slug>/page.tsx`:
+Do **not** create a per-tool page file. Tool routes are handled by:
 
-```tsx
-import type { Metadata } from 'next';
-import { ToolPageLayout } from '@/components/layout/tools/tool-page-layout';
+- `app/(tools)/[category]/[tool]/page.tsx`
+- `components/layout/tools/tool-page-layout.tsx`
 
-export const metadata: Metadata = {
-  title: 'My New Tool',
-  description: 'What the tool does',
-};
-
-export default function MyNewToolPage() {
-  return (
-    <ToolPageLayout
-      toolId="my-new-tool"
-      title="My New Tool"
-      description="What the tool does"
-    />
-  );
-}
-```
+Your new tool becomes routable when its `path` is registered in `lib/constants/tools.ts` and mapped in `components/shared/tool-loader.tsx`.
 
 ### 3. Register in `lib/constants/tools.ts`
 
@@ -98,7 +83,7 @@ Before adding a tool, verify:
 - [ ] It requires zero or minimal new dependencies
 - [ ] It doesn't overlap with an existing tool (extend instead)
 - [ ] Keywords are comprehensive for command palette search
-- [ ] Component is `'use client'` with `ssr: false` in tool-loader
+- [ ] Component is `'use client'` only when interactive and is wired with `ssr: false` in tool-loader
 
 ## Category Guidelines
 
@@ -112,7 +97,7 @@ Before adding a tool, verify:
 
 ## Code Style
 
-- Tailwind CSS only (no inline styles or CSS modules)
+- Tailwind CSS first; use inline styles only for runtime-dynamic values (e.g. computed width/color), and avoid CSS modules unless already established
 - Use `cn()` from `lib/utils.ts` for conditional classes
 - Server Components by default; `'use client'` only for interactive leaves
 - Heavy processing goes in Web Workers via Comlink

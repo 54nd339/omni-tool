@@ -18,6 +18,7 @@ OmniTool is an offline-first, browser-based developer toolbox built with Next.js
 - In-browser heavy processing via workers (FFmpeg, OCR, PDF, background removal)
 - Command palette, keyboard shortcuts, favorites, bookmarks, snippets, recent history
 - Smart content routing (`lib/smart-suggest.ts`) and tool chaining (“Send to…”)
+- Dynamic tool routing via `app/(tools)/[category]/[tool]` + `components/shared/tool-loader.tsx`
 - Theme support and accessibility-focused UI (Radix primitives + keyboard-first patterns)
 
 ## Tech Stack

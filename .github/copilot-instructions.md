@@ -11,8 +11,8 @@ description: OmniTool project coding conventions and architecture rules
 - Components are **dumb and presentational only**. Keep business logic in `lib/`, `hooks/`, `stores/`, `providers/`, or `workers/`.
 - Default to Server Components. Add `'use client'` only on interactive leaf components.
 - Tool page pattern:
-  - `app/(tools)/<category>/<tool>/page.tsx` stays a Server Component.
-  - Export `metadata` and render the client tool from `components/tools/<category>/`.
+  - Dynamic route pages in `app/(tools)/[category]/` and `app/(tools)/[category]/[tool]/` stay Server Components.
+  - Resolve tool metadata/selection from `lib/constants/tools.ts` and render via `components/layout/tools/tool-page-layout.tsx` + `components/shared/tool-loader.tsx`.
 - Use `next/link` instead of `<a>` and `next/image` instead of `<img>`.
 - Match existing naming, folder layout, and patterns before introducing abstractions.
 
@@ -70,7 +70,7 @@ description: OmniTool project coding conventions and architecture rules
   1. third-party
   2. internal aliases (`@/...`)
   3. relative imports
-- Sort imports alphabetically inside each group.
+- Follow the current ESLint `simple-import-sort` grouping/order inside each group.
 - Prefer `import { value, type TypeName } from 'module'` style for type specifiers.
 - Prefer tree-shakable named imports.
 - Keep heavy libraries lazy-loaded (`import()` / `next/dynamic`) where applicable.

@@ -1,7 +1,5 @@
 'use client';
 
-import { useMemo } from 'react';
-import { useSearchParams } from 'next/navigation';
 import { Palette, Pipette } from 'lucide-react';
 
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
@@ -14,13 +12,14 @@ import { GradientGenerator } from './gradient-generator';
 type Tab = 'picker' | 'gradient';
 
 export function ColorGradientTool() {
-  const searchParams = useSearchParams();
-  const initialHex = useMemo(() => getInitialHex(searchParams.get('paste')), [searchParams]);
-  const defaults = useMemo(() => ({ hex: initialHex, tab: 'picker' }), [initialHex]);
-  const [params, setParams] = useToolParams(defaults);
+  const [params, setParams] = useToolParams({
+    hex: '',
+    paste: '',
+    tab: 'picker',
+  });
 
   const tab = params.tab as Tab;
-  const hex = params.hex;
+  const hex = getInitialHex(params.hex || params.paste || null);
 
   return (
     <div className="space-y-6">

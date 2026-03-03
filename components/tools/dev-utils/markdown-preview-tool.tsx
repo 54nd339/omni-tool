@@ -1,7 +1,6 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
 import { useTheme } from 'next-themes';
 import { Download, FileText } from 'lucide-react';
 import { toast } from 'sonner';
@@ -20,19 +19,22 @@ import {
 import { downloadBlob } from '@/lib/utils';
 
 export function MarkdownPreviewTool() {
-  const searchParams = useSearchParams();
   const download = downloadBlob;
   const { resolvedTheme } = useTheme();
   const exportTheme = resolvedTheme === 'dark' ? 'dark' : 'light';
-  const initialInput = useMemo(() => {
-    const inputParam = searchParams.get('input');
-    if (inputParam !== null) return inputParam;
-    const pasteParam = searchParams.get('paste');
-    return pasteParam ? decodeURIComponent(pasteParam) : DEFAULT_MARKDOWN;
-  }, [searchParams]);
-  const defaults = useMemo(() => ({ input: initialInput }), [initialInput]);
-  const [params, setParams] = useToolParams(defaults);
-  const input = params.input;
+  const [params, setParams] = useToolParams({
+    input: '',
+    paste: '',
+  });
+  const input = useMemo(() => {
+    if (params.input) return params.input;
+    if (!params.paste) return DEFAULT_MARKDOWN;
+    try {
+      return decodeURIComponent(params.paste);
+    } catch {
+      return params.paste;
+    }
+  }, [params.input, params.paste]);
   const [html, setHtml] = useState('');
 
   useEffect(() => {
@@ -88,7 +90,7 @@ export function MarkdownPreviewTool() {
           <FileText className="mr-2 h-3.5 w-3.5" />
           Export PDF
         </Button>
-        <Button variant="ghost" size="sm" onClick={() => setParams({ input: '' })}>
+        <Button variant="ghost" size="sm" onClick={() => setParams({ input: '', paste: '' })}>
           Clear
         </Button>
       </div>
@@ -100,7 +102,7 @@ export function MarkdownPreviewTool() {
           </p>
           <Textarea
             value={input}
-            onChange={(event) => setParams({ input: event.target.value })}
+            onChange={(event) => setParams({ input: event.target.value, paste: '' })}
             placeholder="Write Markdown here..."
             rows={24}
             className="min-h-[500px] resize-y font-mono text-sm"

@@ -90,8 +90,8 @@ export function BeforeAfterSlider({
         className="block h-auto w-full max-h-[inherit] object-contain object-center"
       />
       <div
-        className="absolute inset-0 overflow-hidden"
-        style={{ width: `${position}%` }}
+        className="absolute inset-0"
+        style={{ clipPath: `inset(0 ${100 - position}% 0 0)` }}
       >
         <Image
           src={beforeSrc}
@@ -99,7 +99,7 @@ export function BeforeAfterSlider({
           width={2000}
           height={2000}
           unoptimized
-          className="block h-auto w-full max-w-none object-contain object-center"
+          className="block h-auto w-full max-h-[inherit] object-contain object-center"
         />
       </div>
       <div
