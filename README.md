@@ -1,36 +1,112 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# OmniTool
 
-## Getting Started
+OmniTool is an offline-first, browser-based developer toolbox built with Next.js. Most operations run locally in your browser (including media/PDF/image processing) using WebAssembly and Web Workers.
 
-First, run the development server:
+## Current Scope
+
+- **34 tools** across **5 categories** (source of truth: `lib/constants/tools.ts`)
+- Categories:
+  - **Image Studio (9)**: background removal, OCR, image editor, metadata, SVG optimization, batch processing, and more
+  - **Files & Media (6)**: merge/split/create PDFs, convert/merge/split audio-video
+  - **Crypto Suite (4)**: hash, cipher, JWT, SSH key generation
+  - **Dev Utils (11)**: API tester, format tools, diff checker, markdown editor, diagram generator, and more
+  - **Generators (4)**: QR, UUID/ULID, color/gradient, placeholders
+
+## Key Capabilities
+
+- PWA with offline fallback route (`/_offline`)
+- In-browser heavy processing via workers (FFmpeg, OCR, PDF, background removal)
+- Command palette, keyboard shortcuts, favorites, bookmarks, snippets, recent history
+- Smart content routing (`lib/smart-suggest.ts`) and tool chaining (“Send to…”)
+- Theme support and accessibility-focused UI (Radix primitives + keyboard-first patterns)
+
+## Tech Stack
+
+- **Framework**: Next.js 16
+- **Runtime / Package Manager**: Bun
+- **UI**: Tailwind CSS v4, Radix UI, Lucide, Motion
+- **State**: Zustand
+- **Workers**: Comlink + dedicated workers in `workers/`
+- **Core libs**: `@ffmpeg/ffmpeg`, `pdf-lib`, `pdfjs-dist`, `tesseract.js`, `@imgly/background-removal`, `@monaco-editor/react`
+
+## Local Development
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
+bun install
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+App runs at [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Available scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `bun dev` — start dev server (Turbopack)
+- `bun run build` — production build/export
+- `bun run start` — serve static `out/` directory
+- `bun run lint` — run ESLint
 
-## Learn More
+## Build & Export
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+bun run build
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Production build uses static export (`output: 'export'`) and writes output to `out/`.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Docker
 
-## Deploy on Vercel
+```bash
+docker build -t omni-tool .
+docker run -d -p 3000:80 --name omni-tool omni-tool
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Nginx serves the static export from `out/` using `nginx.conf`.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Published Images
+
+- `54nd33p/omnitool:latest` → `master` (default toolset)
+- `54nd33p/omnitool:extras` → `extras` branch (includes Code Playground, Database Playground, Whiteboard, ASCII Art)
+
+To run extras:
+
+```bash
+docker pull 54nd33p/omnitool:extras
+docker run -d -p 3000:80 --name omni-tool-extras 54nd33p/omnitool:extras
+```
+
+## Cross-Origin Isolation (Required)
+
+FFmpeg/WebAssembly workflows rely on `SharedArrayBuffer`, so responses must include:
+
+```
+Cross-Origin-Opener-Policy: same-origin
+Cross-Origin-Embedder-Policy: require-corp
+```
+
+This is already handled in:
+
+- `next.config.ts` (development headers)
+- `nginx.conf` (production/self-hosted)
+
+If deploying to other platforms, ensure these headers are configured there as well.
+
+## CI/CD
+
+Docker image workflows are defined in:
+
+- `.github/workflows/docker-merge.yml` (push to `master` and `extras`)
+- `.github/workflows/docker-pull-request.yml` (pull requests from same repo)
+
+## Repository Layout
+
+```text
+app/            Next.js routes and metadata
+components/     UI, layout, shared, and tool components
+hooks/          React hooks (workers, tool params, shortcuts, etc.)
+lib/            Core logic, constants, data utilities
+providers/      App-level providers
+stores/         Zustand stores
+types/          Shared TypeScript types
+workers/        Web Worker entry points
+public/         Static assets and PWA artifacts
+```
