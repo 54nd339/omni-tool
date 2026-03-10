@@ -362,7 +362,7 @@ export const TOOLS = [
     id: 'uuid-generator',
     name: 'ID & Password Generators',
     description: 'Generate UUID/ULID or secure passwords with customizable options',
-    path: '/generators/uuid',
+    path: '/generators/id-password',
     category: 'generators',
     icon: 'Fingerprint',
     keywords: ['uuid', 'ulid', 'guid', 'unique', 'id', 'password', 'secure', 'random', 'generate'],

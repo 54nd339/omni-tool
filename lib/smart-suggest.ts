@@ -64,7 +64,7 @@ export function detectContentType(text: string): Suggestion | null {
   }
 
   if (UUID_REGEX.test(trimmed)) {
-    return { type: 'UUID', toolName: 'UUID Generator', toolPath: '/generators/uuid' };
+    return { type: 'UUID', toolName: 'UUID Generator', toolPath: '/generators/id-password' };
   }
 
   if (URL_REGEX.test(trimmed)) {

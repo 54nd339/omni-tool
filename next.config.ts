@@ -7,12 +7,21 @@ const withPWA = withPWAInit({
   cacheOnFrontEndNav: true,
   aggressiveFrontEndNavCaching: true,
   reloadOnOnline: false,
-  fallbacks: { document: '/_offline' },
   disable: process.env.NODE_ENV === 'development',
   workboxOptions: {
     disableDevLogs: true,
+    skipWaiting: true,
     maximumFileSizeToCacheInBytes: 10 * 1024 * 1024,
     runtimeCaching: [
+      {
+        urlPattern: ({ request }: { request: Request }) => request.mode === 'navigate',
+        handler: 'NetworkFirst',
+        options: {
+          cacheName: 'pages',
+          expiration: { maxEntries: 50, maxAgeSeconds: 24 * 60 * 60 },
+          networkTimeoutSeconds: 3,
+        },
+      },
       {
         urlPattern: /^https:\/\/unpkg\.com\/.*/i,
         handler: 'CacheFirst',
